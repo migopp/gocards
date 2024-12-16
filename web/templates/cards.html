@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Queue</title>
+    <title>gocards</title>
     <script
       src="https://unpkg.com/htmx.org@2.0.3"
       integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
@@ -14,7 +14,163 @@
   <body>
     <p id="word">word</p>
     <form hx-post="/cards/submit" hx-trigger="keyup[Enter]">
-      <input type="text" name="input" autocomplete="off" />
+      <input
+        type="text"
+        name="input"
+        autocomplete="off"
+        hx-on:keyup="handleKey(event)"
+      />
+      <script>
+        // For translation: romaji -> kana
+        //
+        // No katakana for now...
+        const hiragana = new Map([
+          // Main list
+          ["a", "あ"],
+          ["i", "い"],
+          ["u", "う"],
+          ["e", "え"],
+          ["o", "お"],
+          ["ka", "か"],
+          ["ki", "き"],
+          ["ku", "く"],
+          ["ke", "け"],
+          ["ko", "こ"],
+          ["sa", "さ"],
+          ["shi", "し"],
+          ["su", "す"],
+          ["se", "せ"],
+          ["so", "そ"],
+          ["ta", "た"],
+          ["chi", "ち"],
+          ["tsu", "つ"],
+          ["te", "て"],
+          ["to", "と"],
+          ["na", "な"],
+          ["ni", "に"],
+          ["nu", "ぬ"],
+          ["ne", "ね"],
+          ["no", "の"],
+          ["ha", "は"],
+          ["hi", "ひ"],
+          ["fu", "ふ"],
+          ["he", "へ"],
+          ["ho", "ほ"],
+          ["ma", "ま"],
+          ["mi", "み"],
+          ["mu", "む"],
+          ["me", "め"],
+          ["mo", "も"],
+          ["ra", "ら"],
+          ["ri", "り"],
+          ["ru", "る"],
+          ["re", "れ"],
+          ["ro", "ろ"],
+          ["ya", "や"],
+          ["yu", "ゆ"],
+          ["yo", "よ"],
+          ["wa", "わ"],
+          ["wo", "を"],
+          ["nn", "ん"],
+
+          // Dakuten
+          ["ga", "が"],
+          ["gi", "ぎ"],
+          ["gu", "ぐ"],
+          ["ge", "げ"],
+          ["go", "ご"],
+          ["za", "ざ"],
+          ["ji", "じ"],
+          ["zu", "ず"],
+          ["ze", "ぜ"],
+          ["zo", "ぞ"],
+          ["da", "だ"],
+          ["dji", "ぢ"],
+          ["dzu", "づ"],
+          ["de", "で"],
+          ["do", "ど"],
+          ["ba", "ば"],
+          ["bi", "び"],
+          ["bu", "ぶ"],
+          ["be", "べ"],
+          ["bo", "ぼ"],
+          ["pa", "ぱ"],
+          ["pi", "ぴ"],
+          ["pu", "ぷ"],
+          ["pe", "ぺ"],
+          ["po", "ぽ"],
+
+          // Combo
+          ["kya", "きゃ"],
+          ["kyu", "きゅ"],
+          ["kyo", "きょ"],
+          ["gya", "ぎゃ"],
+          ["gyu", "ぎゅ"],
+          ["gyo", "ぎょ"],
+          ["sha", "しゃ"],
+          ["shu", "しゅ"],
+          ["sho", "しょ"],
+          ["ja", "じゃ"],
+          ["ju", "じゅ"],
+          ["jo", "じょ"],
+          ["cha", "ちゃ"],
+          ["chu", "ちゅ"],
+          ["cho", "ちょ"],
+          ["dja", "ぢゃ"],
+          ["dju", "ぢゅ"],
+          ["djo", "ぢょ"],
+          ["nya", "にゃ"],
+          ["nyu", "にゅ"],
+          ["nyo", "にょ"],
+          ["hya", "ひゃ"],
+          ["hyu", "ひゅ"],
+          ["hyo", "ひょ"],
+          ["bya", "びゃ"],
+          ["byu", "びゅ"],
+          ["byo", "びょ"],
+          ["pya", "ぴゃ"],
+          ["pyu", "ぴゅ"],
+          ["pyo", "ぴょ"],
+          ["mya", "みゃ"],
+          ["myu", "みゅ"],
+          ["myo", "みょ"],
+          ["rya", "りゃ"],
+          ["ryu", "りゅ"],
+          ["ryo", "りょ"],
+
+          // Misc
+          ["-", "ー"],
+        ]);
+
+        // Replaces the text input with appropriate kana
+        //
+        // Since kana can span anywhere from 1-4 characters (sokukon),
+        // we check these sizes from largest-to-smallest order. If it
+        // matches anything in the dict, we replace it.
+        function handleKey(event) {
+          // Capture the original input
+          let input = event.target.value;
+
+          // Look for kana
+          for (let n = 3; n >= 1; --n) {
+            let same = input.slice(0, input.length - n);
+            let slice = input.slice(input.length - n);
+            if (input.length >= n && hiragana.has(slice)) {
+              // Update end
+              if (same.slice(-1) == slice.slice(0, 1)) {
+                // Add `xtsu`
+                //
+                // ... Because this is a sokukon
+                same = same.slice(0, -1) + "っ";
+              }
+              input = same + hiragana.get(slice);
+
+              event.target.value = input;
+              return;
+            }
+          }
+        }
+      </script>
     </form>
   </body>
 </html>
