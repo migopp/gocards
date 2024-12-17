@@ -5,11 +5,14 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+
+	"github.com/migopp/gocards/internal/debug"
 )
 
 func servePage(w http.ResponseWriter, tmplName string) error {
 	// Templates live in `/web/templates`
 	tmplPath := filepath.Join("web", "templates", tmplName)
+	debug.Printf("| Looking for template `%s` @ %v\n", tmplName, tmplPath)
 
 	// Parse the template with name `tname`
 	tmpl, err := template.ParseFiles(tmplPath)
