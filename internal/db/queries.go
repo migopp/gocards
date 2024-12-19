@@ -65,8 +65,8 @@ func tablesInit() error {
 	query = `CREATE TABLE IF NOT EXISTS cards(
 			card_id SERIAL PRIMARY KEY,
 			deck_id INT NOT NULL REFERENCES decks(deck_id) ON DELETE CASCADE,
-			FRONT TEXT NOT NULL,
-			BACK TEXT NOT NULL,
+			front TEXT NOT NULL,
+			back TEXT NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		);`
 	if _, err = db.Exec(query); err != nil {
