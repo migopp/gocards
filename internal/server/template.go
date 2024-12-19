@@ -9,7 +9,7 @@ import (
 	"github.com/migopp/gocards/internal/debug"
 )
 
-func servePage(w http.ResponseWriter, tmplName string) error {
+func serveTmpl(w http.ResponseWriter, tmplName string) error {
 	// Templates live in `/web/templates`
 	tmplPath := filepath.Join("web", "templates", tmplName)
 	debug.Printf("| Looking for template `%s` @ %v\n", tmplName, tmplPath)
@@ -19,7 +19,7 @@ func servePage(w http.ResponseWriter, tmplName string) error {
 	if err != nil {
 		errStr := fmt.Sprintf("ERROR LOADING TEMPLATE %s [%v]", tmplName, err)
 		http.Error(w, errStr, http.StatusInternalServerError)
-		return fmt.Errorf(errStr)
+		return fmt.Errorf("%s", errStr)
 	}
 
 	// Actually load the template by writing to the response
@@ -32,7 +32,7 @@ func servePage(w http.ResponseWriter, tmplName string) error {
 	if err != nil {
 		errStr := fmt.Sprintf("ERROR EXECUTING TEMPLATE %s [%v]", tmplName, err)
 		http.Error(w, errStr, http.StatusInternalServerError)
-		return fmt.Errorf(errStr)
+		return fmt.Errorf("%s", errStr)
 	}
 
 	return nil

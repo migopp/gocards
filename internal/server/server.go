@@ -19,24 +19,16 @@ type Server struct {
 // either on start-up or in the middle of handling --
 // We can't know...
 func (s *Server) Run() error {
-	// For now, we just use the default `mux` in stdlib
-	//
-	// We could use something more advanced, but this
-	// will do for now, since our API is not anything
-	// revolutionary
-	//
-	// The enhancements from 1.22 are more than enough:
-	// https://go.dev/blog/routing-enhancements
-	http.HandleFunc("GET /", home)
-	http.HandleFunc("GET /cards", cards)
+	// Configure router
+	initHandlers()
 
-	// Log where we are serving
+	// Decide where to serve
 	serveAddr := fmt.Sprintf("%s:%d", s.IP, s.Port)
-	debug.Printf("| Starting server at %s\n", serveAddr)
 
 	// Serve
 	//
 	// `ListenAndServe` returns an error, so we will
 	// just bubble it up when it happens
+	debug.Printf("| Starting server at %s\n", serveAddr)
 	return http.ListenAndServe(serveAddr, nil)
 }

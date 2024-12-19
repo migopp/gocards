@@ -34,6 +34,7 @@ func main() {
 	}
 	if err = s.Run(); err != nil {
 		// Maybe do something...
+		db.Close()
 		log.Fatal("x Server shut down")
 	}
 }
