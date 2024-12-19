@@ -34,6 +34,7 @@ import (
 //          - `back`: Back
 //          - `created_at`: Timestamp
 
+// Init tables
 func tablesInit() error {
 	var query string
 	var err error
@@ -43,8 +44,7 @@ func tablesInit() error {
         user_id SERIAL PRIMARY KEY,
         user_name VARCHAR(50) NOT NULL UNIQUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    `
+	);`
 	if _, err = db.Exec(query); err != nil {
 		return fmt.Errorf("Error creating `users`: %v", err)
 	}
@@ -56,8 +56,7 @@ func tablesInit() error {
         deck_name VARCHAR(100) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE (user_id, deck_name)
-    );
-    `
+	);`
 	if _, err = db.Exec(query); err != nil {
 		return fmt.Errorf("Error creating `decks`: %v", err)
 	}
@@ -69,11 +68,28 @@ func tablesInit() error {
         FRONT TEXT NOT NULL,
         BACK TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    `
+	);`
 	if _, err = db.Exec(query); err != nil {
 		return fmt.Errorf("Error creating `cards`: %v", err)
 	}
 
 	return err
+}
+
+// Insert a user into the `users` table
+func CreateUser(u IRepUser) (DBRepUser, error) {
+	var dbu DBRepUser
+	var err error
+
+	// TODO:
+	return dbu, err
+}
+
+// Insert a deck into the `decks` table
+func CreateDeck(d IRepDeck) (DBRepDeck, error) {
+	var dbd DBRepDeck
+	var err error
+
+	// TODO:
+	return dbd, err
 }
