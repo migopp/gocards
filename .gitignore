@@ -3,3 +3,6 @@
 
 # Secrets
 **/.env
+
+# Sample Decks
+**/decks
