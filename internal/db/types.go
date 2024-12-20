@@ -11,7 +11,6 @@ type IRepUser struct {
 
 type IRepDeck struct {
 	DeckName string
-	Cards    []IRepCard
 }
 
 type IRepCard struct {
