@@ -15,11 +15,13 @@
     <form
       hx-post="/decks/upload"
       hx-trigger="submit"
+      hx-swap="innerHTML"
       enctype="multipart/form-data"
     >
       <label for="deck-name">Choose deck to upload:</label>
       <input type="file" name="deck-name" id="deck-name" required />
       <button type="submit">Upload</button>
     </form>
+    <a href="/cards">cards</a>
   </body>
 </html>

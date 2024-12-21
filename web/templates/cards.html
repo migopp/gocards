@@ -12,11 +12,17 @@
     ></script>
   </head>
   <body>
-    <p id="word">word</p>
-    <form hx-post="/cards/submit" hx-trigger="keyup[Enter]">
+    <p id="word">{{.Word}}</p>
+    <form
+      hx-post="/cards/submit"
+      hx-target="#word"
+      hx-swap="innerHTML"
+      hx-trigger="submit"
+    >
       <input
         type="text"
-        name="input"
+        name="ans"
+        id="ans"
         autocomplete="off"
         hx-on:keyup="handleKey(event)"
       />

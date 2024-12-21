@@ -7,5 +7,6 @@ func Init() {
 	var ld types.LRepDeck
 	GlobalState = State{
 		LoadedDeck: ld,
+		Index:      0,
 	}
 }

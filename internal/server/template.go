@@ -9,7 +9,7 @@ import (
 	"github.com/migopp/gocards/internal/debug"
 )
 
-func serveTmpl(w http.ResponseWriter, tmplName string) {
+func serveTmpl(w http.ResponseWriter, tmplName string, dynContent *DynContent) {
 	// Templates live in `/web/templates`
 	tmplPath := filepath.Join("web", "templates", tmplName)
 	debug.Printf("| Looking for template `%s` @ %v\n", tmplName, tmplPath)
@@ -27,7 +27,7 @@ func serveTmpl(w http.ResponseWriter, tmplName string) {
 	// https://pkg.go.dev/html/template#Template.Execute
 	//
 	// I don't really know how this works for now so it's a later problem
-	err = tmpl.Execute(w, nil)
+	err = tmpl.Execute(w, dynContent)
 	if err != nil {
 		errStr := fmt.Sprintf("ERROR EXECUTING TEMPLATE %s [%v]", tmplName, err)
 		http.Error(w, errStr, http.StatusInternalServerError)
