@@ -1,13 +1,15 @@
 package state
 
 import (
+	"fmt"
+
 	"github.com/migopp/gocards/internal/types"
 )
 
 // This is some representation of the state
 type State struct {
 	LoadedDeck types.LRepDeck
-	Index      uint16
+	Index      int
 }
 
 // Update the current deck for a state
@@ -17,21 +19,28 @@ func (s *State) UpdateDeck(ld types.LRepDeck) {
 }
 
 // Get `front` of the current card
-// TODO: Error handling
-func (s *State) GetFront() string {
-	return s.LoadedDeck.Cards[s.Index].Front
+func (s *State) GetFront() (string, error) {
+	if s.Index >= len(s.LoadedDeck.Cards) {
+		return "", fmt.Errorf("OUT OF BOUNDS CARD [%d]", s.Index)
+	}
+	return s.LoadedDeck.Cards[s.Index].Front, nil
 }
 
 // Get `back` of the current card
-// TODO: Error handling
-func (s *State) GetBack() string {
-	return s.LoadedDeck.Cards[s.Index].Back
+func (s *State) GetBack() (string, error) {
+	if s.Index >= len(s.LoadedDeck.Cards) {
+		return "", fmt.Errorf("OUT OF BOUNDS CARD [%d]", s.Index)
+	}
+	return s.LoadedDeck.Cards[s.Index].Back, nil
 }
 
 // Iterates to the next card
-// TODO: Error handling
-func (s *State) NextCard() {
+func (s *State) NextCard() error {
+	if s.Index >= (len(s.LoadedDeck.Cards) - 1) {
+		return fmt.Errorf("COULD NOT GET NEXT CARD")
+	}
 	s.Index++
+	return nil
 }
 
 // Likely, this should actually be stored per-user,

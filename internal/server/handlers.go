@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"text/template"
 
 	"github.com/migopp/gocards/internal/debug"
 	"github.com/migopp/gocards/internal/load"
@@ -38,8 +39,14 @@ func cards(w http.ResponseWriter, r *http.Request) {
 	debug.Printf("| Serving cards.html\n")
 
 	// Prep page content
+	front, err := state.GlobalState.GetFront()
+	if err != nil {
+		errStr := fmt.Sprintf("ERROR GRABBING FRONT OF CURRENT CARD [%v]", err)
+		http.Error(w, errStr, http.StatusInternalServerError)
+		return
+	}
 	dynContent := &DynContent{
-		Word: state.GlobalState.GetFront(),
+		Word: front,
 	}
 
 	// Serve `cards.html`
@@ -53,14 +60,78 @@ func cardsSubmit(w http.ResponseWriter, r *http.Request) {
 	// Check if the answer is correct
 	r.ParseForm()
 	input := r.FormValue("ans")
-	if input == state.GlobalState.GetBack() {
+	back, err := state.GlobalState.GetBack()
+	if err != nil {
+		errStr := fmt.Sprintf("ERROR GRABBING BACK OF CURRENT CARD [%v]", err)
+		http.Error(w, errStr, http.StatusInternalServerError)
+		return
+	}
+	if input == back {
+		// Correct answer given
+		//
+		// Resend the `ui` DOM subtree, but update the dynamic content
+		// to the next card contents
 		debug.Printf("| Correct answer given\n")
 
-		// TODO:
+		// Prep page content
+		err := state.GlobalState.NextCard()
+		if err != nil {
+			// TODO: Serve stats/home instead...
+			debug.Printf("x Out of cards\n")
+			errStr := fmt.Sprintf("OUT OF CARDS [%v]", err)
+			http.Error(w, errStr, http.StatusInternalServerError)
+			return
+		}
+		front, err := state.GlobalState.GetFront()
+		if err != nil {
+			debug.Printf("x Could not grab front of current card\n")
+			errStr := fmt.Sprintf("ERROR GRABBING FRONT OF CURRENT CARD [%v]", err)
+			http.Error(w, errStr, http.StatusInternalServerError)
+			return
+		}
+		dynContent := &DynContent{
+			Word: front,
+		}
+		tmpl, err := template.New("ui").Parse(rightCardsUI)
+		if err != nil {
+			debug.Printf("x Could not parse `rightCardsUI`\n")
+			errStr := fmt.Sprintf("ERROR PARISNG `rightCardsUI` [%v]", err)
+			http.Error(w, errStr, http.StatusInternalServerError)
+			return
+		}
+
+		// Serve updated content
+		w.Header().Set("Content-Type", "text/html")
+		tmpl.Execute(w, dynContent)
 	} else {
+		// Wrong answer given
+		//
+		// Similar story to the correct case, but we don't want to
+		// advnace the card until the user gets it right
 		debug.Printf("| Wrong answer given\n")
 
-		// TODO:
+		// Serve same page content
+		front, err := state.GlobalState.GetFront()
+		if err != nil {
+			debug.Printf("x Could not grab front of current card\n")
+			errStr := fmt.Sprintf("ERROR GRABBING FRONT OF CURRENT CARD [%v]", err)
+			http.Error(w, errStr, http.StatusInternalServerError)
+			return
+		}
+		dynContent := &DynContent{
+			Word: front,
+		}
+		tmpl, err := template.New("ui").Parse(wrongCardsUI)
+		if err != nil {
+			debug.Printf("x Could not parse `wrongCardsUI`\n")
+			errStr := fmt.Sprintf("ERROR PARISNG `wrongCardsUI` [%v]", err)
+			http.Error(w, errStr, http.StatusInternalServerError)
+			return
+		}
+
+		// Serve updated content
+		w.Header().Set("Content-Type", "text/html")
+		tmpl.Execute(w, dynContent)
 	}
 }
 
