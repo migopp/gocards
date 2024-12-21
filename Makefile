@@ -1,5 +1,7 @@
-local:
+up:
 	docker compose up --build
 
-clean:
+down:
 	docker compose down -v
+
+clean: down

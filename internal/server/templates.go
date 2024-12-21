@@ -47,3 +47,15 @@ const wrongCardsUI = `
 	</form>
 </div>
 `
+
+const startButton = `
+<form action="/cards" method="get">
+	<button type="submit">Start</button>
+</form>
+`
+
+const homeButton = `
+<form action="/" method="get">
+	<button type="submit">Home</button>
+</form>
+`

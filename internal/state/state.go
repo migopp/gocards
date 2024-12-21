@@ -35,12 +35,15 @@ func (s *State) GetBack() (string, error) {
 }
 
 // Iterates to the next card
-func (s *State) NextCard() error {
+//
+// `true` if the iteration was successful,
+// `false` otherwise
+func (s *State) NextCard() bool {
 	if s.Index >= (len(s.LoadedDeck.Cards) - 1) {
-		return fmt.Errorf("COULD NOT GET NEXT CARD")
+		return false
 	}
 	s.Index++
-	return nil
+	return true
 }
 
 // Likely, this should actually be stored per-user,

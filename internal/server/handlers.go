@@ -74,12 +74,17 @@ func cardsSubmit(w http.ResponseWriter, r *http.Request) {
 		debug.Printf("| Correct answer given\n")
 
 		// Prep page content
-		err := state.GlobalState.NextCard()
-		if err != nil {
-			// TODO: Serve stats/home instead...
-			debug.Printf("x Out of cards\n")
-			errStr := fmt.Sprintf("OUT OF CARDS [%v]", err)
-			http.Error(w, errStr, http.StatusInternalServerError)
+		exists := state.GlobalState.NextCard()
+		if exists == false {
+			tmpl, err := template.New("homeButton").Parse(homeButton)
+			if err != nil {
+				debug.Printf("x Could not parse `homeButton`\n")
+				errStr := fmt.Sprintf("ERROR PARISNG `hometButton` [%v]", err)
+				http.Error(w, errStr, http.StatusInternalServerError)
+				return
+			}
+			w.Header().Set("Content-Type", "text/html")
+			tmpl.Execute(w, nil)
 			return
 		}
 		front, err := state.GlobalState.GetFront()
@@ -169,4 +174,15 @@ func decksUpload(w http.ResponseWriter, r *http.Request) {
 
 	// Update the global state
 	state.GlobalState.UpdateDeck(ld)
+
+	// Serve the start button
+	tmpl, err := template.New("startButton").Parse(startButton)
+	if err != nil {
+		debug.Printf("x Could not parse `startButton`\n")
+		errStr := fmt.Sprintf("ERROR PARISNG `startButton` [%v]", err)
+		http.Error(w, errStr, http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html")
+	tmpl.Execute(w, nil)
 }
