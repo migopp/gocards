@@ -10,41 +10,49 @@ package server
 
 const rightCardsUI = `
 <div id="ui">
-	<p>{{.Word}}</p>
-	<form
-		hx-post="/cards/submit"
-		hx-target="#ui"
-		hx-swap="innerHTML"
-		hx-trigger="submit"
-	>
-		<input
-			type="text"
-			name="ans"
-			id="ans"
-			autocomplete="off"
-			hx-on:keyup="handleKey(event)"
-		/>
-	</form>
+	<div
+		id="word-ui"
+		class="neutral">
+		<p>{{.Word}}</p>
+	</div>
+	<div id="box-ui">
+		<form
+			hx-post="/cards/submit"
+			hx-target="#ui"
+			hx-swap="innerHTML"
+			hx-trigger="submit">
+			<input
+				type="text"
+				name="ans"
+				id="ans"
+				autocomplete="off"
+				hx-on:keyup="handleKey(event)" />
+		</form>
+	</div>
 </div>
 `
 
 const wrongCardsUI = `
 <div id="ui">
-	<p style="background-color: red">{{.Word}}</p>
-	<form
-		hx-post="/cards/submit"
-		hx-target="#ui"
-		hx-swap="innerHTML"
-		hx-trigger="submit"
-	>
-		<input
-			type="text"
-			name="ans"
-			id="ans"
-			autocomplete="off"
-			hx-on:keyup="handleKey(event)"
-		/>
-	</form>
+	<div
+		id="word-ui"
+		class="wrong">
+		<p>{{.Word}}</p>
+	</div>
+	<div id="box-ui">
+		<form
+			hx-post="/cards/submit"
+			hx-target="#ui"
+			hx-swap="innerHTML"
+			hx-trigger="submit">
+			<input
+				type="text"
+				name="ans"
+				id="ans"
+				autocomplete="off"
+				hx-on:keyup="handleKey(event)" />
+		</form>
+	</div>
 </div>
 `
 
@@ -55,6 +63,7 @@ const startButton = `
 `
 
 const homeButton = `
+<p>{{.Ratio}}</p>
 <form action="/" method="get">
 	<button type="submit">Home</button>
 </form>

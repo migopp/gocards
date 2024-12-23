@@ -10,24 +10,77 @@
       integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
       crossorigin="anonymous"
     ></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap");
+
+      body {
+        padding: 0;
+        margin: 0;
+      }
+
+      #ui {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+      }
+
+      #word-ui {
+        width: 100%;
+        margin-bottom: 1rem;
+        text-align: center;
+        font-size: 4rem;
+        font-family: "Noto Sans JP", sans-serif;
+        color: white;
+      }
+
+      #box-ui {
+        width: 95%;
+      }
+
+      #box-ui form {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+
+      #box-ui input {
+        width: 100%;
+        font-size: 2.5rem;
+        text-align: center;
+      }
+
+      .neutral {
+        background-color: teal;
+      }
+
+      .wrong {
+        background-color: red;
+      }
+    </style>
   </head>
   <body>
     <div id="ui">
-      <p>{{.Word}}</p>
-      <form
-        hx-post="/cards/submit"
-        hx-target="#ui"
-        hx-swap="innerHTML"
-        hx-trigger="submit"
-      >
-        <input
-          type="text"
-          name="ans"
-          id="ans"
-          autocomplete="off"
-          hx-on:keyup="handleKey(event)"
-        />
-      </form>
+      <div id="word-ui" class="neutral">
+        <p>{{.Word}}</p>
+      </div>
+      <div id="box-ui">
+        <form
+          hx-post="/cards/submit"
+          hx-target="#ui"
+          hx-swap="innerHTML"
+          hx-trigger="submit"
+        >
+          <input
+            type="text"
+            name="ans"
+            id="ans"
+            autocomplete="off"
+            hx-on:keyup="handleKey(event)"
+          />
+        </form>
+      </div>
     </div>
   </body>
   <script>

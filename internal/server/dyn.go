@@ -1,5 +1,6 @@
 package server
 
 type DynContent struct {
-	Word string
+	Word  string
+	Ratio float64
 }

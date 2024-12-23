@@ -39,6 +39,7 @@ func cards(w http.ResponseWriter, r *http.Request) {
 	debug.Printf("| Serving cards.html\n")
 
 	// Prep page content
+	state.GlobalState.Reset()
 	front, err := state.GlobalState.GetFront()
 	if err != nil {
 		errStr := fmt.Sprintf("ERROR GRABBING FRONT OF CURRENT CARD [%v]", err)
@@ -46,7 +47,8 @@ func cards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	dynContent := &DynContent{
-		Word: front,
+		Word:  front,
+		Ratio: state.GlobalState.Ratio(),
 	}
 
 	// Serve `cards.html`
@@ -73,9 +75,15 @@ func cardsSubmit(w http.ResponseWriter, r *http.Request) {
 		// to the next card contents
 		debug.Printf("| Correct answer given\n")
 
+		// Mark correct
+		state.GlobalState.AddRight()
+
 		// Prep page content
 		exists := state.GlobalState.NextCard()
 		if exists == false {
+			dynContent := &DynContent{
+				Ratio: state.GlobalState.Ratio(),
+			}
 			tmpl, err := template.New("homeButton").Parse(homeButton)
 			if err != nil {
 				debug.Printf("x Could not parse `homeButton`\n")
@@ -84,7 +92,7 @@ func cardsSubmit(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			w.Header().Set("Content-Type", "text/html")
-			tmpl.Execute(w, nil)
+			tmpl.Execute(w, dynContent)
 			return
 		}
 		front, err := state.GlobalState.GetFront()
@@ -95,7 +103,8 @@ func cardsSubmit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		dynContent := &DynContent{
-			Word: front,
+			Word:  front,
+			Ratio: state.GlobalState.Ratio(),
 		}
 		tmpl, err := template.New("ui").Parse(rightCardsUI)
 		if err != nil {
@@ -115,6 +124,9 @@ func cardsSubmit(w http.ResponseWriter, r *http.Request) {
 		// advnace the card until the user gets it right
 		debug.Printf("| Wrong answer given\n")
 
+		// Mark wrong
+		state.GlobalState.AddWrong()
+
 		// Serve same page content
 		front, err := state.GlobalState.GetFront()
 		if err != nil {
@@ -124,7 +136,8 @@ func cardsSubmit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		dynContent := &DynContent{
-			Word: front,
+			Word:  front,
+			Ratio: state.GlobalState.Ratio(),
 		}
 		tmpl, err := template.New("ui").Parse(wrongCardsUI)
 		if err != nil {

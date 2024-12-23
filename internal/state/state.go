@@ -2,6 +2,7 @@ package state
 
 import (
 	"fmt"
+	"math/rand"
 
 	"github.com/migopp/gocards/internal/types"
 )
@@ -10,12 +11,26 @@ import (
 type State struct {
 	LoadedDeck types.LRepDeck
 	Index      int
+	Correct    int
+	Attempts   int
 }
 
 // Update the current deck for a state
 func (s *State) UpdateDeck(ld types.LRepDeck) {
 	GlobalState.LoadedDeck = ld
-	GlobalState.Index = 0
+}
+
+// Reset the state of the deck
+func (s *State) Reset() {
+	// Shuffle the deck
+	rand.Shuffle(len(s.LoadedDeck.Cards), func(i, j int) {
+		s.LoadedDeck.Cards[i], s.LoadedDeck.Cards[j] = s.LoadedDeck.Cards[j], s.LoadedDeck.Cards[i]
+	})
+
+	// Reset the stats
+	s.Index = 0
+	s.Correct = 0
+	s.Attempts = 0
 }
 
 // Get `front` of the current card
@@ -44,6 +59,25 @@ func (s *State) NextCard() bool {
 	}
 	s.Index++
 	return true
+}
+
+// Say that we made an attempt, but it was wrong
+func (s *State) AddWrong() {
+	s.Attempts++
+}
+
+// Say that we got one right
+func (s *State) AddRight() {
+	s.Correct++
+	s.Attempts++
+}
+
+// Returns the correct : attempt ratio
+func (s *State) Ratio() float64 {
+	if s.Attempts == 0 {
+		return float64(0)
+	}
+	return (float64(s.Correct) / float64(s.Attempts)) * 100
 }
 
 // Likely, this should actually be stored per-user,
