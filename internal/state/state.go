@@ -13,6 +13,17 @@ type State struct {
 	Index      int
 	Correct    int
 	Attempts   int
+
+	// NOTE: Temporary. This is sh*tty design. I think.
+	//
+	// What we should do is upload them to the db, and then
+	// pull from that when we select and run the game.
+	UploadedDecks []types.LRepDeck
+}
+
+// NOTE: Also temp.
+func (s *State) UploadDeck(uld types.LRepDeck) {
+	s.UploadedDecks = append(s.UploadedDecks, uld)
 }
 
 // Update the current deck for a state

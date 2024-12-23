@@ -10,9 +10,7 @@ package server
 
 const rightCardsUI = `
 <div id="ui">
-	<div
-		id="word-ui"
-		class="neutral">
+	<div id="word-ui" class="neutral">
 		<p>{{.Word}}</p>
 	</div>
 	<div id="box-ui">
@@ -20,13 +18,15 @@ const rightCardsUI = `
 			hx-post="/cards/submit"
 			hx-target="#ui"
 			hx-swap="innerHTML"
-			hx-trigger="submit">
+			hx-trigger="submit"
+		>
 			<input
 				type="text"
 				name="ans"
 				id="ans"
 				autocomplete="off"
-				hx-on:keyup="handleKey(event)" />
+				hx-on:keyup="handleKey(event)"
+			/>
 		</form>
 	</div>
 </div>
@@ -34,9 +34,7 @@ const rightCardsUI = `
 
 const wrongCardsUI = `
 <div id="ui">
-	<div
-		id="word-ui"
-		class="wrong">
+	<div id="word-ui" class="wrong">
 		<p>{{.Word}}</p>
 	</div>
 	<div id="box-ui">
@@ -44,16 +42,27 @@ const wrongCardsUI = `
 			hx-post="/cards/submit"
 			hx-target="#ui"
 			hx-swap="innerHTML"
-			hx-trigger="submit">
+			hx-trigger="submit"
+		>
 			<input
 				type="text"
 				name="ans"
 				id="ans"
 				autocomplete="off"
-				hx-on:keyup="handleKey(event)" />
+				hx-on:keyup="handleKey(event)"
+			/>
 		</form>
 	</div>
 </div>
+`
+
+const deckSelect = `
+<select name="decks" id="decks" required>
+	<option value="" disabled selected>Select a deck</option>
+	{{range $index, $item := .Decks}}
+	<option value="{{$index}}">{{$item.Deck.DeckName}}</option>
+	{{end}}
+</select>
 `
 
 const startButton = `

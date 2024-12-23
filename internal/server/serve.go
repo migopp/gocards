@@ -9,7 +9,7 @@ import (
 	"github.com/migopp/gocards/internal/debug"
 )
 
-func serveTmpl(w http.ResponseWriter, tmplName string, dynContent *DynContent) {
+func serveTmpl(w http.ResponseWriter, tmplName string, dynContent DynContent) {
 	// Templates live in `/web/templates`
 	tmplPath := filepath.Join("web", "templates", tmplName)
 	debug.Printf("| Looking for template `%s` @ %v\n", tmplName, tmplPath)

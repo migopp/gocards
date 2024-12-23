@@ -1,4 +1,4 @@
-up:
+up: down
 	docker compose up --build
 
 down:
