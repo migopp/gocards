@@ -25,7 +25,7 @@ const rightCardsUI = `
 				name="ans"
 				id="ans"
 				autocomplete="off"
-				hx-on:keyup="handleKey(event)"
+				oninput="handleKey(event)"
 			/>
 		</form>
 	</div>
@@ -49,7 +49,7 @@ const wrongCardsUI = `
 				name="ans"
 				id="ans"
 				autocomplete="off"
-				hx-on:keyup="handleKey(event)"
+				oninput="handleKey(event)"
 			/>
 		</form>
 	</div>

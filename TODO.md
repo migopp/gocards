@@ -1,14 +1,16 @@
 # TODO
 
-- [ ] Front-end
+## FE
 
-  - [ ] Home page
-  - [ ] End of game page
+- [ ] Home page
+- [ ] End of game page
+- [ ] Game page stats
+  - Accuracy
+  - Completed cards
+  - Num cards remaining
 
-- [ ] eng -> jpn auto conversion speed/accuracy
+## BE
 
-  - [ ] also add , . etc
-
-- [ ] Upload decks to db
-- [ ] Fetch from db when loading into game
-- [ ] Add accuracy on game screen (look at wanikani)
+- [ ] Upload decks to DB
+- [ ] Fetch deck from DB when loading into game
+- [ ] Game page stats hooks

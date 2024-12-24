@@ -77,7 +77,7 @@
             name="ans"
             id="ans"
             autocomplete="off"
-            hx-on:keyup="handleKey(event)"
+            oninput="handleKey(event)"
           />
         </form>
       </div>
@@ -203,7 +203,18 @@
 
       // Misc
       ["-", "ー"],
+      [",", "、"],
+      [".", "。"],
     ]);
+
+    // Save a global translation buffer
+    //
+    // This is really bad in terms of concurrency, but I think
+    // since JS uses an event loop with a single thread, you
+    // can get away with this kind of thing...
+    //
+    // Maybe a bug will prove me wrong later or something lol
+    let buffer = "";
 
     // Replaces the text input with appropriate kana
     //
@@ -211,25 +222,43 @@
     // we check these sizes from largest-to-smallest order. If it
     // matches anything in the dict, we replace it.
     function handleKey(event) {
-      // Capture the original input
+      // Check for deletion
+      //
+      // We can delete from the actual form, but our content
+      // will be forever bugged if we don't fix this now.
+      if (event.inputType === "deleteContentBackward") {
+        if (buffer.length != 0) buffer = buffer.slice(0, -1);
+        return; // break!
+      }
+
+      // Save the last character
+      //
+      // Then we look for kana with our updated input;
+      // noting that we can also have a repeated consonant
+      // (sokukon) which will make the length of that "slice"
+      // be `succ(n)`, where `n` is the length without repeat.
       let input = event.target.value;
-
-      // Look for kana
-      for (let n = 3; n >= 1; --n) {
-        let same = input.slice(0, input.length - n);
-        let slice = input.slice(input.length - n);
-        if (input.length >= n && hiragana.has(slice)) {
-          // Update end
-          if (same.slice(-1) == slice.slice(0, 1)) {
-            // Add `xtsu`
-            //
-            // ... Because this is a sokukon
-            same = same.slice(0, -1) + "っ";
-          }
-          input = same + hiragana.get(slice);
-
-          event.target.value = input;
-          return;
+      buffer += input.slice(-1);
+      if (hiragana.has(buffer)) {
+        event.target.value =
+          input.slice(0, input.length - buffer.length) + hiragana.get(buffer);
+        buffer = ""; // reset
+      } else {
+        // Check for sokukon
+        // e.g., `たべちゃtta` -> `たべちゃった`
+        //
+        // We need:
+        // 	- a match for kana at the end, AND
+        // 	- the character right _before_ the match needs to be congruent
+        // 	  to the first character of the match
+        let slice = buffer.slice(1); // shorthand
+        if (hiragana.has(slice) && buffer[0] == slice[0]) {
+          // Add `xtsu`
+          event.target.value =
+            input.slice(0, input.length - buffer.length) +
+            "っ" +
+            hiragana.get(slice);
+          buffer = ""; // still counts as a find; reset
         }
       }
     }
