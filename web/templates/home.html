@@ -13,48 +13,125 @@
 			src="https://unpkg.com/htmx.org@2.0.3"
 			integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
 			crossorigin="anonymous"></script>
-		<style></style>
+		<style>
+			@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap');
+
+			body {
+				max-width: 1000px;
+				margin: 0 auto;
+				padding: 0;
+			}
+
+			#home-ui {
+				padding: 2vh 5vw 0;
+			}
+
+			#header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 3rem;
+			}
+
+			#gocards-title {
+				font-size: 2rem;
+				font-family: 'Noto Sans JP', sans-serif;
+				font-weight: bold;
+				margin: 0;
+				padding: 0;
+			}
+
+			#deck-select {
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				padding: 1rem 1rem 6rem 1rem;
+				margin-bottom: 3rem;
+				background-color: antiquewhite;
+				border-radius: 15px;
+			}
+
+			#deck-upload {
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				padding: 1rem 1rem 6rem 1rem;
+				margin-bottom: 3rem;
+				background-color: antiquewhite;
+				border-radius: 15px;
+			}
+
+			#deck-upload-form {
+			}
+
+			h2 {
+				font-size: 1.25rem;
+				margin: 0 0 1rem 0;
+				padding: 0;
+			}
+		</style>
 	</head>
 	<body>
-		<p>ゴーカード</p>
-		<div id="deck-select">
-			<form
-				hx-post="/decks/select"
-				hx-trigger="change"
-				hx-target="#deck-select"
-				hx-swap="outerHTML">
-				<label for="decks">Choose a deck:</label>
-				<select
-					name="decks"
-					id="decks"
-					required>
-					<option
-						value=""
-						disabled
-						selected>
-						Select a deck
-					</option>
-					{{range $index, $item := .Decks}}
-					<option value="{{$index}}">{{$item.Deck.DeckName}}</option>
-					{{end}}
-				</select>
-			</form>
-		</div>
-		<div id="deck-upload">
-			<form
-				hx-post="/decks/upload"
-				hx-trigger="submit"
-				hx-target="#decks"
-				hx-swap="outerHTML"
-				enctype="multipart/form-data">
-				<label for="deck-name">Or upload one first:</label>
-				<input
-					type="file"
-					name="deck-name"
-					id="deck-name"
-					required />
-				<button type="submit">Upload</button>
-			</form>
+		<div id="home-ui">
+			<header id="header">
+				<div>
+					<h1 id="gocards-title">ゴーカード</h1>
+				</div>
+				<div>
+					<nav></nav>
+				</div>
+			</header>
+			<div id="deck-select">
+				<h2>Select a deck</h2>
+				<div id="deck-select-form">
+					<form
+						hx-post="/decks/select"
+						hx-trigger="change"
+						hx-target="#start"
+						hx-swap="innerHTML">
+						<select
+							name="decks"
+							id="decks"
+							required>
+							<option
+								value=""
+								disabled
+								selected>
+								エンプティー？
+							</option>
+							{{range $index, $item := .Decks}}
+							<option value="{{$index}}">
+								{{$item.Deck.DeckName}}
+							</option>
+							{{end}}
+						</select>
+					</form>
+				</div>
+				<div id="start">
+					<!-- <form
+						action="/cards"
+						method="get">
+						<button type="submit">Start</button>
+					</form> -->
+				</div>
+			</div>
+			<div id="deck-upload">
+				<h2>Or, upload a new one</h2>
+				<form
+					hx-post="/decks/upload"
+					hx-trigger="submit"
+					hx-target="#decks"
+					hx-swap="outerHTML"
+					enctype="multipart/form-data"
+					id="deck-upload-form">
+					<input
+						type="file"
+						name="deck-name"
+						id="deck-name"
+						required />
+					<button type="submit">Upload</button>
+				</form>
+			</div>
 		</div>
 	</body>
 </html>
