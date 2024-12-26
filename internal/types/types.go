@@ -18,12 +18,12 @@ type IRepCard struct {
 	Back  string `yaml:"back"`
 }
 
-// Data registrations that make sense at load time
+// Data representations that make sense at load time
 //
 // While a `DeckName` field attatched to a deck
 // may make sense on its own normally, in terms of
 // loading, it makes more sense to associate with
-// the cards that are stored inside of it
+// the cards that are stored inside of it.
 
 type LRepDeck struct {
 	Deck  IRepDeck   `yaml:"deck"`

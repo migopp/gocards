@@ -18,7 +18,7 @@ type Server struct {
 // If it fails, then we exit with an error,
 // either on start-up or in the middle of handling --
 // We can't know...
-func (s *Server) Run() error {
+func (s *Server) Spawn() error {
 	// Configure router
 	initHandlers()
 

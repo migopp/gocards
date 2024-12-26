@@ -1,19 +1,23 @@
 services:
   db:
-    image: postgres:14
+    image: postgres:16
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWD}
       - POSTGRES_DB=${DB_NAME}
     ports:
       - "${DB_PORT}:${DB_PORT}"
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${DB_NAME} -U $${DB_USER}"]
       interval: 5s
       timeout: 5s
       retries: 10
   server:
-    build: .
+    build:
+      context: .
+      target: final
     environment:
       - DB_USER=${DB_USER}
       - DB_PASSWD=${DB_PASSWD}
@@ -24,6 +28,8 @@ services:
       - SERVER_PORT=${SERVER_PORT}
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy

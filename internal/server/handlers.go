@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"text/template"
 
 	"github.com/migopp/gocards/internal/debug"
 	"github.com/migopp/gocards/internal/load"
 	"github.com/migopp/gocards/internal/state"
+	"github.com/migopp/gocards/internal/templates"
 )
 
 // Configure the router
@@ -21,31 +21,25 @@ func initHandlers() {
 	//
 	// The enhancements from 1.22 are more than enough:
 	// https://go.dev/blog/routing-enhancements
-	http.HandleFunc("GET /", home)
-	http.HandleFunc("GET /cards", cards)
-	http.HandleFunc("POST /cards/submit", cardsSubmit)
-	http.HandleFunc("POST /decks/select", decksSelect)
-	http.HandleFunc("POST /decks/upload", decksUpload)
+	http.HandleFunc("GET /", getHome)
+	http.HandleFunc("GET /cards", getCards)
+	http.HandleFunc("POST /cards/submit", postCardsSubmit)
+	http.HandleFunc("POST /decks/select", postDecksSelect)
+	http.HandleFunc("POST /decks/upload", postDecksUpload)
 }
 
 // Trigger to serve the home page
-func home(w http.ResponseWriter, r *http.Request) {
+func getHome(w http.ResponseWriter, r *http.Request) {
 	debug.Printf("| Serving home.html\n")
-
-	// Prep page content
-	dynContent := HomeDynContent{
+	dc := templates.HomeContent{
 		Decks: state.GlobalState.UploadedDecks,
 	}
-
-	// Serve `home.html`
-	serveTmpl(w, "home.html", dynContent)
+	templates.ServeTemplate(w, templates.Home, dc)
 }
 
 // Trigger to serve the cards page
-func cards(w http.ResponseWriter, r *http.Request) {
+func getCards(w http.ResponseWriter, r *http.Request) {
 	debug.Printf("| Serving cards.html\n")
-
-	// Prep page content
 	state.GlobalState.Reset()
 	front, err := state.GlobalState.GetFront()
 	if err != nil {
@@ -53,17 +47,15 @@ func cards(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, errStr, http.StatusInternalServerError)
 		return
 	}
-	dynContent := GameDynContent{
+	dc := templates.GameContent{
 		Word:  front,
 		Ratio: state.GlobalState.Ratio(),
 	}
-
-	// Serve `cards.html`
-	serveTmpl(w, "cards.html", dynContent)
+	templates.ServeTemplate(w, templates.Cards, dc)
 }
 
 // Trigger to submit an answer
-func cardsSubmit(w http.ResponseWriter, r *http.Request) {
+func postCardsSubmit(w http.ResponseWriter, r *http.Request) {
 	debug.Printf("| Hit `/cards/submit`\n")
 
 	// Check if the answer is correct
@@ -85,26 +77,18 @@ func cardsSubmit(w http.ResponseWriter, r *http.Request) {
 		//
 		// Resend the `ui` DOM subtree, but update the dynamic content
 		// to the next card contents
-		debug.Printf("| Correct answer given\n")
-
-		// Mark correct
 		state.GlobalState.AddRight()
 
 		// Prep page content
 		exists := state.GlobalState.NextCard()
 		if exists == false {
-			dynContent := GameDynContent{
+			// We are at the end of the deck
+			//
+			// Send some report and allow the user to return home
+			dc := templates.GameContent{
 				Ratio: state.GlobalState.Ratio(),
 			}
-			tmpl, err := template.New("homeButton").Parse(homeButton)
-			if err != nil {
-				debug.Printf("x Could not parse `homeButton`\n")
-				errStr := fmt.Sprintf("ERROR PARISNG `hometButton` [%v]", err)
-				http.Error(w, errStr, http.StatusInternalServerError)
-				return
-			}
-			w.Header().Set("Content-Type", "text/html")
-			tmpl.Execute(w, dynContent)
+			templates.ServeTemplate(w, templates.End, dc)
 			return
 		}
 		front, err := state.GlobalState.GetFront()
@@ -114,29 +98,16 @@ func cardsSubmit(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, errStr, http.StatusInternalServerError)
 			return
 		}
-		dynContent := GameDynContent{
+		dc := templates.GameContent{
 			Word:  front,
 			Ratio: state.GlobalState.Ratio(),
 		}
-		tmpl, err := template.New("ui").Parse(rightCardsUI)
-		if err != nil {
-			debug.Printf("x Could not parse `rightCardsUI`\n")
-			errStr := fmt.Sprintf("ERROR PARISNG `rightCardsUI` [%v]", err)
-			http.Error(w, errStr, http.StatusInternalServerError)
-			return
-		}
-
-		// Serve updated content
-		w.Header().Set("Content-Type", "text/html")
-		tmpl.Execute(w, dynContent)
+		templates.ServeTemplate(w, templates.CardRight, dc)
 	} else {
 		// Wrong answer given
 		//
 		// Similar story to the correct case, but we don't want to
 		// advnace the card until the user gets it right
-		debug.Printf("| Wrong answer given\n")
-
-		// Mark wrong
 		state.GlobalState.AddWrong()
 
 		// Serve same page content
@@ -147,26 +118,16 @@ func cardsSubmit(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, errStr, http.StatusInternalServerError)
 			return
 		}
-		dynContent := GameDynContent{
+		dc := templates.GameContent{
 			Word:  front,
 			Ratio: state.GlobalState.Ratio(),
 		}
-		tmpl, err := template.New("ui").Parse(wrongCardsUI)
-		if err != nil {
-			debug.Printf("x Could not parse `wrongCardsUI`\n")
-			errStr := fmt.Sprintf("ERROR PARISNG `wrongCardsUI` [%v]", err)
-			http.Error(w, errStr, http.StatusInternalServerError)
-			return
-		}
-
-		// Serve updated content
-		w.Header().Set("Content-Type", "text/html")
-		tmpl.Execute(w, dynContent)
+		templates.ServeTemplate(w, templates.CardWrong, dc)
 	}
 }
 
 // Trigger to select a deck
-func decksSelect(w http.ResponseWriter, r *http.Request) {
+func postDecksSelect(w http.ResponseWriter, r *http.Request) {
 	debug.Printf("| Hit `/decks/select`\n")
 
 	// Parse the form and get the selected value
@@ -198,19 +159,11 @@ func decksSelect(w http.ResponseWriter, r *http.Request) {
 	state.GlobalState.UpdateDeck(deck)
 
 	// Serve the start button
-	tmpl, err := template.New("startButton").Parse(startButton)
-	if err != nil {
-		debug.Printf("x Could not parse `startButton`\n")
-		errStr := fmt.Sprintf("ERROR PARISNG `startButton` [%v]", err)
-		http.Error(w, errStr, http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "text/html")
-	tmpl.Execute(w, nil)
+	templates.ServeTemplate(w, templates.Start, nil)
 }
 
 // Trigger to upload a deck
-func decksUpload(w http.ResponseWriter, r *http.Request) {
+func postDecksUpload(w http.ResponseWriter, r *http.Request) {
 	debug.Printf("| Hit `/decks/upload`\n")
 
 	// Parse the uploaded file
@@ -247,16 +200,8 @@ func decksUpload(w http.ResponseWriter, r *http.Request) {
 	state.GlobalState.UploadDeck(ld)
 
 	// Serve deck selection updates
-	dynContent := HomeDynContent{
+	dc := templates.HomeContent{
 		Decks: state.GlobalState.UploadedDecks,
 	}
-	tmpl, err := template.New("deckSelect").Parse(deckSelect)
-	if err != nil {
-		debug.Printf("x Could not parse `deckSelect`\n")
-		errStr := fmt.Sprintf("ERROR PARISNG `deckSelect` [%v]", err)
-		http.Error(w, errStr, http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "text/html")
-	tmpl.Execute(w, dynContent)
+	templates.ServeTemplate(w, templates.DeckSelect, dc)
 }

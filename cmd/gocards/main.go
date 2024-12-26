@@ -32,7 +32,7 @@ func main() {
 		IP:   host,
 		Port: uint16(port),
 	}
-	if err = s.Run(); err != nil {
+	if err = s.Spawn(); err != nil {
 		// Maybe do something...
 		db.Close()
 		log.Fatal("x Server shut down")

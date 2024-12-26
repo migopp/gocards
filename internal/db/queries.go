@@ -11,7 +11,6 @@ import (
 func CreateUser(u types.IRepUser) (types.DBRepUser, error) {
 	var dbu types.DBRepUser
 	var err error
-
 	query := "INSERT INTO users (user_name)" +
 		"VALUES ($1)" +
 		"RETURNING *;"
@@ -31,7 +30,6 @@ func CreateUser(u types.IRepUser) (types.DBRepUser, error) {
 func CreateDeck(u types.DBRepUser, d types.IRepDeck) (types.DBRepDeck, error) {
 	var dbd types.DBRepDeck
 	var err error
-
 	query := "INSERT INTO decks (user_id, deck_name)" +
 		"VALUES ($1, $2)" +
 		"RETURNING *;"
@@ -56,7 +54,6 @@ func CreateDeck(u types.DBRepUser, d types.IRepDeck) (types.DBRepDeck, error) {
 func CreateCard(d types.DBRepDeck, c types.IRepCard) (types.DBRepCard, error) {
 	var dbc types.DBRepCard
 	var err error
-
 	query := "INSERT INTO cards (deck_id, front, back)" +
 		"VALUES ($1, $2, $3)" +
 		"RETURNING *;"

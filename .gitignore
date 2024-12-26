@@ -3,6 +3,7 @@
 
 # Secrets
 **/.env
+**/TODO.md
 
 # Sample Decks
 **/decks
