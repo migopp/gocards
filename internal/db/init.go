@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 	"github.com/migopp/gocards/internal/debug"
 )
@@ -51,9 +54,9 @@ func Init() error {
 
 	// Spin up DB
 	debug.Printf("| Opening DB connection\n")
-	connStr := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable", user, passwd, host, port, name)
-	debug.Printf("| Connection string: %s\n", connStr)
-	tdb, err := sql.Open("postgres", connStr)
+	cs := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", user, passwd, host, port, name)
+	debug.Printf("| Connection string: %s\n", cs)
+	tdb, err := sql.Open("postgres", cs)
 	if err != nil {
 		return fmt.Errorf("Error opening database connection: %v", err)
 	}
@@ -64,6 +67,19 @@ func Init() error {
 	err = db.Ping()
 	if err != nil {
 		return fmt.Errorf("Could not ping database: %v", err)
+	}
+
+	// Apply migrations
+	debug.Printf("| Applying DB migrations\n")
+	m, err := migrate.New(
+		"file://migrations",
+		cs,
+	)
+	if err != nil {
+		return fmt.Errorf("Error creating migration instance: %v", err)
+	}
+	if err = m.Up(); err != nil && err != migrate.ErrNoChange {
+		return fmt.Errorf("Error applying migrations: %v", err)
 	}
 
 	// Success!
