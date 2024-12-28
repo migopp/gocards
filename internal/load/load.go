@@ -24,7 +24,7 @@ func ToDeck(f multipart.File, h *multipart.FileHeader) (types.LRepDeck, error) {
 	// Parse the yaml file -> irep
 	decoder := yaml.NewDecoder(f)
 	if err = decoder.Decode(&ld); err != nil {
-		return ld, fmt.Errorf("CANNOT DECODE FILE: %s", h.Filename)
+		return ld, fmt.Errorf("Cannot decode file: %s", h.Filename)
 	}
 	return ld, nil
 }

@@ -47,7 +47,7 @@ func (s *State) Reset() {
 // Get `front` of the current card
 func (s *State) GetFront() (string, error) {
 	if s.Index >= len(s.LoadedDeck.Cards) {
-		return "", fmt.Errorf("OUT OF BOUNDS CARD [%d]", s.Index)
+		return "", fmt.Errorf("Out of bounds card [%d]", s.Index)
 	}
 	return s.LoadedDeck.Cards[s.Index].Front, nil
 }
@@ -55,7 +55,7 @@ func (s *State) GetFront() (string, error) {
 // Get `back` of the current card
 func (s *State) GetBack() (string, error) {
 	if s.Index >= len(s.LoadedDeck.Cards) {
-		return "", fmt.Errorf("OUT OF BOUNDS CARD [%d]", s.Index)
+		return "", fmt.Errorf("Out of bounds card [%d]", s.Index)
 	}
 	return s.LoadedDeck.Cards[s.Index].Back, nil
 }

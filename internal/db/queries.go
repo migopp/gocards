@@ -14,7 +14,9 @@ func CreateUser(u types.IRepUser) (types.DBRepUser, error) {
 	query := "INSERT INTO users (user_name)" +
 		"VALUES ($1)" +
 		"RETURNING *;"
-	debug.Printf("| Inserting `%s` into `users`\n", u.UserName)
+	debug.Printf("Inserting into `users` with details:\n"+
+		"\t`user_name`: %s\n",
+		u.UserName)
 	err = db.QueryRow(query, u.UserName).Scan(
 		&dbu.UserID,
 		&dbu.UserName,
@@ -22,7 +24,7 @@ func CreateUser(u types.IRepUser) (types.DBRepUser, error) {
 	if err != nil {
 		return dbu, fmt.Errorf("Error executing `users` insertion query: %v", err)
 	}
-	debug.Printf("| Successful insertion into `users`\n")
+	debug.Printf("Successful insertion into `users`\n")
 	return dbu, nil
 }
 
@@ -33,9 +35,9 @@ func CreateDeck(u types.DBRepUser, d types.IRepDeck) (types.DBRepDeck, error) {
 	query := "INSERT INTO decks (user_id, deck_name)" +
 		"VALUES ($1, $2)" +
 		"RETURNING *;"
-	debug.Printf("| Inserting into `decks` with details:\n"+
-		"|\t`user_id`: %d\n"+
-		"|\t`deck_name`: %s\n",
+	debug.Printf("Inserting into `decks` with details:\n"+
+		"\t`user_id`: %d\n"+
+		"\t`deck_name`: %s\n",
 		u.UserID,
 		d.DeckName)
 	err = db.QueryRow(query, u.UserID, d.DeckName).Scan(
@@ -46,7 +48,7 @@ func CreateDeck(u types.DBRepUser, d types.IRepDeck) (types.DBRepDeck, error) {
 	if err != nil {
 		return dbd, fmt.Errorf("Error executing `decks` insertion query: %v", err)
 	}
-	debug.Printf("| Successful insertion into `decks`\n")
+	debug.Printf("Successful insertion into `decks`\n")
 	return dbd, err
 }
 
@@ -57,9 +59,9 @@ func CreateCard(d types.DBRepDeck, c types.IRepCard) (types.DBRepCard, error) {
 	query := "INSERT INTO cards (deck_id, front, back)" +
 		"VALUES ($1, $2, $3)" +
 		"RETURNING *;"
-	debug.Printf("| Inserting into `cards` with details:\n"+
-		"|\t`front`: %s\n"+
-		"|\t`back`: %s\n",
+	debug.Printf("Inserting into `cards` with details:\n"+
+		"\t`front`: %s\n"+
+		"\t`back`: %s\n",
 		c.Front,
 		c.Back)
 	err = db.QueryRow(query, d.DeckID, c.Front, c.Back).Scan(
@@ -71,6 +73,6 @@ func CreateCard(d types.DBRepDeck, c types.IRepCard) (types.DBRepCard, error) {
 	if err != nil {
 		return dbc, fmt.Errorf("Error executing `cards` insertion query: %v", err)
 	}
-	debug.Printf("| Successful insertion into `cards`\n")
+	debug.Printf("Successful insertion into `cards`\n")
 	return dbc, err
 }

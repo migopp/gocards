@@ -30,7 +30,7 @@ func initHandlers() {
 
 // Trigger to serve the home page
 func getHome(w http.ResponseWriter, r *http.Request) {
-	debug.Printf("| Serving home.html\n")
+	debug.Printf("Serving home.html\n")
 	dc := templates.HomeContent{
 		Decks: state.GlobalState.UploadedDecks,
 	}
@@ -39,11 +39,11 @@ func getHome(w http.ResponseWriter, r *http.Request) {
 
 // Trigger to serve the cards page
 func getCards(w http.ResponseWriter, r *http.Request) {
-	debug.Printf("| Serving cards.html\n")
+	debug.Printf("Serving cards.html\n")
 	state.GlobalState.Reset()
 	front, err := state.GlobalState.GetFront()
 	if err != nil {
-		errStr := fmt.Sprintf("ERROR GRABBING FRONT OF CURRENT CARD [%v]", err)
+		errStr := fmt.Sprintf("Error grabbing front of current card [%v]", err)
 		http.Error(w, errStr, http.StatusInternalServerError)
 		return
 	}
@@ -56,19 +56,19 @@ func getCards(w http.ResponseWriter, r *http.Request) {
 
 // Trigger to submit an answer
 func postCardsSubmit(w http.ResponseWriter, r *http.Request) {
-	debug.Printf("| Hit `/cards/submit`\n")
+	debug.Printf("Hit `/cards/submit`\n")
 
 	// Check if the answer is correct
 	err := r.ParseForm()
 	if err != nil {
-		errStr := fmt.Sprintf("ERROR PARSING RAW ANSWER DATA [%v]", err)
+		errStr := fmt.Sprintf("Error parsing raw answer data [%v]", err)
 		http.Error(w, errStr, http.StatusBadRequest)
 		return
 	}
 	input := r.FormValue("ans")
 	back, err := state.GlobalState.GetBack()
 	if err != nil {
-		errStr := fmt.Sprintf("ERROR GRABBING BACK OF CURRENT CARD [%v]", err)
+		errStr := fmt.Sprintf("Error grabbing back of current card [%v]", err)
 		http.Error(w, errStr, http.StatusInternalServerError)
 		return
 	}
@@ -93,8 +93,7 @@ func postCardsSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 		front, err := state.GlobalState.GetFront()
 		if err != nil {
-			debug.Printf("x Could not grab front of current card\n")
-			errStr := fmt.Sprintf("ERROR GRABBING FRONT OF CURRENT CARD [%v]", err)
+			errStr := fmt.Sprintf("Error grabbing front of next card [%v]", err)
 			http.Error(w, errStr, http.StatusInternalServerError)
 			return
 		}
@@ -113,8 +112,7 @@ func postCardsSubmit(w http.ResponseWriter, r *http.Request) {
 		// Serve same page content
 		front, err := state.GlobalState.GetFront()
 		if err != nil {
-			debug.Printf("x Could not grab front of current card\n")
-			errStr := fmt.Sprintf("ERROR GRABBING FRONT OF CURRENT CARD [%v]", err)
+			errStr := fmt.Sprintf("Error grabbing front of current card [%v]", err)
 			http.Error(w, errStr, http.StatusInternalServerError)
 			return
 		}
@@ -128,7 +126,7 @@ func postCardsSubmit(w http.ResponseWriter, r *http.Request) {
 
 // Trigger to select a deck
 func postDecksSelect(w http.ResponseWriter, r *http.Request) {
-	debug.Printf("| Hit `/decks/select`\n")
+	debug.Printf("Hit `/decks/select`\n")
 
 	// Parse the form and get the selected value
 	//
@@ -136,18 +134,18 @@ func postDecksSelect(w http.ResponseWriter, r *http.Request) {
 	// to serve in the future
 	err := r.ParseForm()
 	if err != nil {
-		errStr := fmt.Sprintf("ERROR PARSING DECK SELECTION FORM [%v]", err)
+		errStr := fmt.Sprintf("Error parsing deck selection form [%v]", err)
 		http.Error(w, errStr, http.StatusBadRequest)
 		return
 	}
 	sdn := r.FormValue("decks")
 	if sdn == "" {
-		http.Error(w, "PLEASE SELECT A DECK...", http.StatusBadRequest)
+		http.Error(w, "Please select a deck...", http.StatusBadRequest)
 		return
 	}
 	sdi, err := strconv.Atoi(sdn)
 	if err != nil {
-		errStr := fmt.Sprintf("INVALID DECK ID: %s [%v]", sdn, err)
+		errStr := fmt.Sprintf("Invalid deck ID: %s [%v]", sdn, err)
 		http.Error(w, errStr, http.StatusBadRequest)
 		return
 	}
@@ -164,13 +162,13 @@ func postDecksSelect(w http.ResponseWriter, r *http.Request) {
 
 // Trigger to upload a deck
 func postDecksUpload(w http.ResponseWriter, r *http.Request) {
-	debug.Printf("| Hit `/decks/upload`\n")
+	debug.Printf("Hit `/decks/upload`\n")
 
 	// Parse the uploaded file
 	const FileSize = 10 << 20 // ~10MB
 	err := r.ParseMultipartForm(FileSize)
 	if err != nil {
-		http.Error(w, "ERROR PARSING FILE FORM", http.StatusBadRequest)
+		http.Error(w, "Error parsing file form", http.StatusBadRequest)
 		return
 	}
 
@@ -179,7 +177,7 @@ func postDecksUpload(w http.ResponseWriter, r *http.Request) {
 	// r.FormFile(...) -> file, header, err
 	file, header, err := r.FormFile("deck-name")
 	if err != nil {
-		errStr := fmt.Sprintf("ERROR RETRIEVING FORM DATA [%v]", err)
+		errStr := fmt.Sprintf("Error fetching form data [%v]", err)
 		http.Error(w, errStr, http.StatusBadRequest)
 		return
 	}
@@ -188,7 +186,7 @@ func postDecksUpload(w http.ResponseWriter, r *http.Request) {
 	// Parse file in usable form
 	ld, err := load.ToDeck(file, header)
 	if err != nil {
-		errStr := fmt.Sprintf("ERROR RESOLIVING FILE TO DECK [%v]", err)
+		errStr := fmt.Sprintf("Error resolving file to deck [%v]", err)
 		http.Error(w, errStr, http.StatusBadRequest)
 		return
 	}

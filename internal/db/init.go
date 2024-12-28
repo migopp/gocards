@@ -53,9 +53,9 @@ func Init() error {
 	name := os.Getenv("DB_NAME")
 
 	// Spin up DB
-	debug.Printf("| Opening DB connection\n")
+	debug.Printf("Opening DB connection\n")
 	cs := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", user, passwd, host, port, name)
-	debug.Printf("| Connection string: %s\n", cs)
+	debug.Printf("Connection string: %s\n", cs)
 	tdb, err := sql.Open("postgres", cs)
 	if err != nil {
 		return fmt.Errorf("Error opening database connection: %v", err)
@@ -70,7 +70,7 @@ func Init() error {
 	}
 
 	// Apply migrations
-	debug.Printf("| Applying DB migrations\n")
+	debug.Printf("Applying DB migrations\n")
 	m, err := migrate.New(
 		"file://migrations",
 		cs,
