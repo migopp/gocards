@@ -1,7 +1,12 @@
-up: down
-	docker compose up --build
+up:
+	go run ./cmd/gocards/main.go
 
-down:
-	docker compose down -v
+test:
+	go test ./... -v
 
-clean: down
+cleandb:
+	find . -type f -name "*.db" -exec rm -f {} +
+
+clean:
+
+.PHONY: all test cleandb clean
