@@ -55,6 +55,16 @@ func (db *DB) CreateUser(u *User) error {
 	return r.Error
 }
 
+func (db *DB) CreateDeck(d *Deck) error {
+	r := db.dbi.db().Create(d)
+	return r.Error
+}
+
+func (db *DB) CreateCard(c *Card) error {
+	r := db.dbi.db().Create(c)
+	return r.Error
+}
+
 func (db *DB) FetchUserWithID(id uint) (User, error) {
 	var u User
 	r := db.dbi.db().Where("id = ?", id).First(&u)

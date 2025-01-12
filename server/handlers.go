@@ -97,3 +97,11 @@ func postLogin(c *gin.Context) {
 	http.Redirect(c.Writer, c.Request, "/", http.StatusFound)
 	return
 }
+
+func getCards(c *gin.Context) {
+	c.HTML(http.StatusOK, "cards.html", gin.H{})
+}
+
+func postCards(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{})
+}

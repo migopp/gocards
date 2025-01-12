@@ -1,24 +1,58 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-		<link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
-		<title>ゴーカード</title>
-		<script
-			src="https://unpkg.com/htmx.org@2.0.3"
-			integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
-			crossorigin="anonymous"
-		></script>
-		<style type="text/css" media="screen">
-			@import url("/static/index.css");
-		</style>
-	</head>
-	<body>
-		<header>
-			<p>ゴーカード</p>
-		</header>
-		<p>Hello world!</p>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+    <title>ゴーカード</title>
+    <script
+      src="https://unpkg.com/htmx.org@2.0.3"
+      integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
+      crossorigin="anonymous"
+    ></script>
+    <style type="text/css" media="screen">
+      @import url("/static/index.css");
+    </style>
+  </head>
+  <body>
+    <header>
+      <p>ゴーカード</p>
+    </header>
+
+    <div id="deck-select-upload">
+      <div id="deck-select">
+        <div id="deck-select-form">
+          <form
+            hx-post="/decks/select"
+            hx-trigger="change"
+            hx-target="#start"
+            hx-swap="innerHTML"
+          >
+            <select name="decks" id="decks" required>
+              <option value="" disabled selected>エンプティー？</option>
+              {{range $index, $item := .}}
+              <option value="{{$index}}">{{$item.Deck.Name}}</option>
+              {{end}}
+            </select>
+          </form>
+        </div>
+        <div id="start"></div>
+      </div>
+
+      <div id="deck-upload">
+        <form
+          hx-post="/decks/upload"
+          hx-trigger="submit"
+          hx-target="#decks"
+          hx-swap="outerHTML"
+          enctype="multipart/form-data"
+          id="deck-upload-form"
+        >
+          <input type="file" name="deck-name" id="deck-name" required />
+          <button type="submit">Upload</button>
+        </form>
+      </div>
+    </div>
+  </body>
 </html>
