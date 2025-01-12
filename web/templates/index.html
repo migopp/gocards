@@ -42,14 +42,14 @@
 
       <div id="deck-upload">
         <form
-          hx-post="/decks/upload"
+          hx-post="/decks"
           hx-trigger="submit"
           hx-target="#decks"
           hx-swap="outerHTML"
           enctype="multipart/form-data"
           id="deck-upload-form"
         >
-          <input type="file" name="deck-name" id="deck-name" required />
+          <input type="file" name="deck-file" id="deck-file" required />
           <button type="submit">Upload</button>
         </form>
       </div>

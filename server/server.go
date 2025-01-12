@@ -29,7 +29,8 @@ func (s *Server) Config() {
 	s.engine.GET("/login", getLogin)
 	s.engine.POST("/login", postLogin)
 	s.engine.GET("/cards", getCards)
-	s.engine.POST("/cards", postCards)
+	s.engine.GET("/decks", getDecks)
+	s.engine.POST("/decks", postDecks)
 }
 
 func (s *Server) Up() error {

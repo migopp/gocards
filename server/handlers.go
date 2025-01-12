@@ -53,6 +53,7 @@ func postSignup(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Error": "Auth generation failed",
 		})
+		return
 	}
 
 	// Redirect to index
@@ -91,6 +92,7 @@ func postLogin(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Error": "Auth generation failed",
 		})
+		return
 	}
 
 	// Redirect to index
@@ -102,6 +104,59 @@ func getCards(c *gin.Context) {
 	c.HTML(http.StatusOK, "cards.html", gin.H{})
 }
 
-func postCards(c *gin.Context) {
+func getDecks(c *gin.Context) {
+	// TODO:
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+func postDecks(c *gin.Context) {
+	// Parse the uploaded file
+	const fs = 10 << 20 // ~10mb
+	if err := c.Request.ParseMultipartForm(fs); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Failed to parse deck upload form",
+		})
+		return
+	}
+
+	// Open the file as a multipart
+	file, header, err := c.Request.FormFile("deck-file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Failed to open deck from form data",
+		})
+		return
+	}
+	defer file.Close()
+
+	// Parse file into `LDeck`
+	ld, err := db.YMLToDeck(file, header)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Failed to parse deck from `.yml`",
+		})
+		return
+	}
+
+	// Upload the deck to the DB
+	//
+	// This requires us to know which user we are working
+	// on behalf of, so we fetch it from the JWT first
+	u, err := getSessionUser(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Failed to fetch session user",
+		})
+		return
+	}
+	if err := db.GCDB.LoadDeck(ld, u); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Error": "Failed load deck into DB",
+		})
+		return
+	}
+
+	// Serve updates
+	// TODO:
 	c.JSON(http.StatusOK, gin.H{})
 }
