@@ -12,11 +12,11 @@ import (
 )
 
 func getIndex(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.go.tmpl", gin.H{})
+	c.HTML(http.StatusOK, "index.html", gin.H{})
 }
 
 func getSignup(c *gin.Context) {
-	c.HTML(http.StatusOK, "signup.go.tmpl", gin.H{})
+	c.HTML(http.StatusOK, "signup.html", gin.H{})
 }
 
 func postSignup(c *gin.Context) {
@@ -62,7 +62,7 @@ func postSignup(c *gin.Context) {
 }
 
 func getLogin(c *gin.Context) {
-	c.HTML(http.StatusOK, "login.go.tmpl", gin.H{})
+	c.HTML(http.StatusOK, "login.html", gin.H{})
 }
 
 func postLogin(c *gin.Context) {
