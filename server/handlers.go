@@ -12,11 +12,11 @@ import (
 )
 
 func getIndex(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{})
+	c.HTML(http.StatusOK, "index.tmpl.html", gin.H{})
 }
 
 func getSignup(c *gin.Context) {
-	c.HTML(http.StatusOK, "signup.html", gin.H{})
+	c.HTML(http.StatusOK, "signup.tmpl.html", gin.H{})
 }
 
 func postSignup(c *gin.Context) {
@@ -63,7 +63,7 @@ func postSignup(c *gin.Context) {
 }
 
 func getLogin(c *gin.Context) {
-	c.HTML(http.StatusOK, "login.html", gin.H{})
+	c.HTML(http.StatusOK, "login.tmpl.html", gin.H{})
 }
 
 func postLogin(c *gin.Context) {
@@ -101,7 +101,7 @@ func postLogin(c *gin.Context) {
 }
 
 func getCards(c *gin.Context) {
-	c.HTML(http.StatusOK, "cards.html", gin.H{})
+	c.HTML(http.StatusOK, "cards.tmpl.html", gin.H{})
 }
 
 func getDecks(c *gin.Context) {
@@ -149,7 +149,7 @@ func postDecks(c *gin.Context) {
 		})
 		return
 	}
-	if err := db.GCDB.LoadDeck(ld, u); err != nil {
+	if err := db.GCDB.LoadDeck(&ld, u); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Error": "Failed load deck into DB",
 		})
@@ -157,6 +157,18 @@ func postDecks(c *gin.Context) {
 	}
 
 	// Serve updates
-	// TODO:
-	c.JSON(http.StatusOK, gin.H{})
+	//
+	// First, we will need to fetch all the available decks
+	// for the session user
+	decks, err := db.GCDB.FetchDecksForUser(u)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Error": "Failed fetch decks for session user",
+		})
+		return
+	}
+	fmt.Printf("Decks = %v\n", decks)
+	c.HTML(http.StatusOK, "decks.comp.html", gin.H{
+		"Decks": decks,
+	})
 }

@@ -43,7 +43,30 @@ func YMLToDeck(f multipart.File, h *multipart.FileHeader) (LDeck, error) {
 //
 // Basically a wrapper around a call to `CreateDeck` and
 // a bunch of `CreateCard`
-func (db *DB) LoadDeck(ld LDeck, u User) error {
-	// TODO:
+func (db *DB) LoadDeck(ld *LDeck, u User) error {
+	// Fill `DBDeck` metadata
+	ld.DBDeck.UserID = u.ID
+	ld.DBDeck.User = u
+
+	// Put `ld.DBDeck` into DB
+	if err := db.CreateDeck(&ld.DBDeck); err != nil {
+		return err
+	}
+
+	// Populate cards
+	for i := range ld.DBCards {
+		// Get card
+		card := &ld.DBCards[i]
+
+		// Fill `card` metadata
+		card.DeckID = ld.DBDeck.ID
+		card.Deck = ld.DBDeck
+
+		// Put `card` into DB
+		if err := db.CreateCard(card); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

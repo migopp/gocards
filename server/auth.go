@@ -59,12 +59,12 @@ func getSessionUser(c *gin.Context) (db.User, error) {
 		return u, err
 	}
 
-	// Get `sub` claim
-	claims, _ := tok.Claims.(jwt.MapClaims)
-	id, sok := claims["sub"].(uint)
-	if !sok {
-		return u, fmt.Errorf("Unable to fetch `sub` claim")
+	// Get `sub` claim; extract	`id`
+	claims, ok := tok.Claims.(jwt.MapClaims)
+	if !ok {
+		return u, fmt.Errorf("Unable to extract claims")
 	}
+	id := uint(claims["sub"].(float64))
 
 	// Use given `id` to find the user and hand it back
 	return db.GCDB.FetchUserWithID(id)

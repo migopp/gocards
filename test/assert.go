@@ -6,8 +6,8 @@ func AssertEq(res any, exp any, t *testing.T) {
 	if res != exp {
 		t.Errorf(
 			"Equality assertion failed.\n"+
-				"\tExpected: %v\n"+
-				"\tRecieved: %v",
+				"\tRecieved: %v\n"+
+				"\tExpected: %v",
 			exp,
 			res,
 		)

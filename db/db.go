@@ -76,3 +76,9 @@ func (db *DB) FetchUserWithEmail(e string) (User, error) {
 	r := db.dbi.db().Where("email = ?", e).First(&u)
 	return u, r.Error
 }
+
+func (db *DB) FetchDecksForUser(u User) ([]Deck, error) {
+	var decks []Deck
+	r := db.dbi.db().Where("user_id = ?", u.ID).Find(&decks)
+	return decks, r.Error
+}

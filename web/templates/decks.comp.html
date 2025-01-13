@@ -1,0 +1,6 @@
+<select name="decks" id="decks" required>
+  <option value="" disabled selected>エンプティー？</option>
+  {{range $index, $item := .Decks}}
+  <option value="{{$index}}">{{$item.Name}}</option>
+  {{end}}
+</select>
