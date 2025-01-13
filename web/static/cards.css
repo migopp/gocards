@@ -5,7 +5,7 @@
   margin: 0;
 }
 
-#ui {
+#card-container {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -13,33 +13,37 @@
   align-items: center;
 }
 
-#word-ui {
+#word-container {
   width: 100%;
+  padding: 2rem 0;
   margin-bottom: 1rem;
-  text-align: center;
-  font-size: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 5rem;
   font-family: "Noto Sans JP", sans-serif;
   color: white;
 }
 
-#box-ui {
+#input-container {
   width: 95%;
 }
 
-#box-ui form {
+#input-container form {
   width: 100%;
   display: flex;
   justify-content: center;
 }
 
-#box-ui input {
+#input-container input {
   width: 100%;
   font-size: 2.5rem;
   text-align: center;
+  caret-color: transparent;
 }
 
-.neutral {
-  background-color: teal;
+.norm {
+  background-color: black;
 }
 
 .wrong {

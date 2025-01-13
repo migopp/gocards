@@ -194,14 +194,14 @@
     }
   </script>
   <body>
-    <div id="ui">
-      <div id="word-ui" class="neutral">
+    <div id="card-container">
+      <div id="word-container" class="norm">
         <p>{{.Card.Front}}</p>
       </div>
-      <div id="box-ui">
+      <div id="input-container">
         <form
-          hx-post="/cards/submit"
-          hx-target="#ui"
+          hx-post="/cards"
+          hx-target="#card-container"
           hx-swap="innerHTML"
           hx-trigger="submit"
         >

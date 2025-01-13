@@ -39,32 +39,42 @@ func getSessionAuth(c *gin.Context) (string, error) {
 	return c.Cookie(GocardsAuthCookie)
 }
 
-func getSessionUser(c *gin.Context) (db.User, error) {
-	var u db.User
+func getSessionUserID(c *gin.Context) (uint, error) {
+	var id uint
 
 	// Get `GocardsAuthCookie`
 	auth, err := getSessionAuth(c)
 	if err != nil {
-		return u, err
+		return id, err
 	}
 
 	// Parse JWT
 	tok, err := jwt.Parse(auth, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return id, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(env.GCV.JWTSecret), nil
 	})
 	if err != nil {
-		return u, err
+		return id, err
 	}
 
 	// Get `sub` claim; extract	`id`
 	claims, ok := tok.Claims.(jwt.MapClaims)
 	if !ok {
-		return u, fmt.Errorf("Unable to extract claims")
+		return id, fmt.Errorf("Unable to extract claims")
 	}
-	id := uint(claims["sub"].(float64))
+	return uint(claims["sub"].(float64)), nil
+}
+
+func getSessionUser(c *gin.Context) (db.User, error) {
+	var u db.User
+
+	// Get session user ID
+	id, err := getSessionUserID(c)
+	if err != nil {
+		return u, err
+	}
 
 	// Use given `id` to find the user and hand it back
 	return db.GCDB.FetchUserWithID(id)

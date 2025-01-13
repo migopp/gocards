@@ -34,3 +34,27 @@ func (ds *deckState) curr() (db.Card, error) {
 	}
 	return ds.LoadedDeck.DBCards[ds.Index], nil
 }
+
+func (ds *deckState) next() bool {
+	if ds.Index >= len(ds.LoadedDeck.DBCards) {
+		return false
+	}
+	ds.Index++
+	return true
+}
+
+func (ds *deckState) correct() {
+	ds.Correct++
+	ds.Attempts++
+}
+
+func (ds *deckState) incorrect() {
+	ds.Attempts++
+}
+
+func (ds *deckState) ratio() float64 {
+	if ds.Attempts == 0 {
+		return float64(0)
+	}
+	return float64(ds.Correct) / float64(ds.Attempts)
+}

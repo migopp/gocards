@@ -122,17 +122,16 @@ func postLogin(c *gin.Context) {
 	return
 }
 
-// TODO:
 func getCards(c *gin.Context) {
 	// Get session user's deck state
-	u, err := getSessionUser(c)
+	id, err := getSessionUserID(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"Error": "Failed to get session user",
+			"Error": "Failed to get session userID",
 		})
 		return
 	}
-	ds, ok := GCS.deckStateForUser(u)
+	ds, ok := GCS.deckStateForUserID(id)
 	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Error": "Session user has no active deck state",
@@ -151,6 +150,77 @@ func getCards(c *gin.Context) {
 	c.HTML(http.StatusOK, "cards.tmpl.html", gin.H{
 		"Card": card,
 	})
+}
+
+// TODO:
+func postCards(c *gin.Context) {
+	// Get session user's deck state
+	id, err := getSessionUserID(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Failed to get session userID",
+		})
+		return
+	}
+	ds, ok := GCS.deckStateForUserID(id)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Session user has no active deck state",
+		})
+		return
+	}
+
+	// Fetch user input
+	err = c.Request.ParseForm()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Unable to parse page forms",
+		})
+		return
+	}
+	in := c.Request.FormValue("ans")
+	fmt.Println("ans: ", in)
+	card, err := ds.curr()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Error": "Failed to fetch current card",
+		})
+		return
+	}
+
+	// Check answer
+	if in == card.Back {
+		// Correct
+		ds.correct()
+		if exists := ds.next(); !exists {
+			// Out of cards, display stats
+			ra := ds.ratio()
+			c.HTML(http.StatusOK, "stats.comp.html", gin.H{
+				"Ratio": ra,
+			})
+			return
+		} else {
+			// Display next card
+			card, err := ds.curr()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"Error": "Failed to fetch current card",
+				})
+				return
+			}
+			c.HTML(http.StatusOK, "cardsr.comp.html", gin.H{
+				"Card": card,
+			})
+			return
+		}
+	} else {
+		// Incorrect
+		ds.incorrect()
+		c.HTML(http.StatusOK, "cardsw.comp.html", gin.H{
+			"Card": card,
+		})
+		return
+	}
 }
 
 // TODO:
@@ -229,7 +299,6 @@ func postDecksSelect(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println("Forms:", c.Request.Form)
 	sdn := c.Request.FormValue("decks")
 	if sdn == "" { // NOTE: Sus
 		c.JSON(http.StatusBadRequest, gin.H{

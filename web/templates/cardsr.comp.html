@@ -1,0 +1,19 @@
+<div id="word-container" class="norm">
+  <p>{{.Card.Front}}</p>
+</div>
+<div id="input-container">
+  <form
+    hx-post="/cards"
+    hx-target="card-container"
+    hx-swap="innerHTML"
+    hx-trigger="submit"
+  >
+    <input
+      type="text"
+      name="ans"
+      id="ans"
+      autocomplete="off"
+      oninput="handleKey(event)"
+    />
+  </form>
+</div>

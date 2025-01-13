@@ -34,6 +34,7 @@ func (s *Server) Config() {
 	s.engine.GET("/login", getLogin)
 	s.engine.POST("/login", postLogin)
 	s.engine.GET("/cards", getCards)
+	s.engine.POST("/cards", postCards)
 	s.engine.GET("/decks", getDecks)
 	s.engine.POST("/decks", postDecks)
 	s.engine.POST("/decks/select", postDecksSelect)
@@ -41,6 +42,11 @@ func (s *Server) Config() {
 
 func (s *Server) Up() error {
 	return s.engine.Run(s.address)
+}
+
+func (s *Server) deckStateForUserID(id uint) (deckState, bool) {
+	ds, ok := s.deckStates[id]
+	return ds, ok
 }
 
 func (s *Server) deckStateForUser(u db.User) (deckState, bool) {
