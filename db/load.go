@@ -12,7 +12,7 @@ type LDeck struct {
 	DBCards []Card `yaml:"cards"`
 }
 
-// `YMLToDeck` parses a `.yml` -> deck to load into DB
+// `YMLToLDeck` parses a `.yml` -> deck to load into DB
 //
 // This means that `Deck` in `LDeck.DBDeck` is populated with:
 //   - `Name`
@@ -24,7 +24,7 @@ type LDeck struct {
 // Some of the data, such as `Deck.UserID` or `Card.DeckID` will
 // be loaded into the load representation at a later, more convenient
 // time.
-func YMLToDeck(f multipart.File, h *multipart.FileHeader) (LDeck, error) {
+func YMLToLDeck(f multipart.File, h *multipart.FileHeader) (LDeck, error) {
 	var ld LDeck
 	var err error
 
@@ -36,6 +36,28 @@ func YMLToDeck(f multipart.File, h *multipart.FileHeader) (LDeck, error) {
 
 	// Later, we load DB metadata fields...
 
+	return ld, nil
+}
+
+// `DeckToLDeck` makes database queries to take a `Deck` DB reference
+// and turn it into a fully-loaded form in memory that the server
+// can use and manipulate
+//
+// This way we can store them in some per-user state on the server
+// side rather than bouncing it around in a JWT or something
+func DeckToLDeck(d Deck) (LDeck, error) {
+	var ld LDeck
+	// NOTE: Consider upgrading this to be a method later...
+	//
+	// This is maybe tricky because we are assuming
+	// we want this operation done on the global DB, instead
+	// of making this a function of an individual DB
+	cards, err := GCDB.FetchCardsForDeck(d)
+	if err != nil {
+		return ld, err
+	}
+	ld.DBDeck = d
+	ld.DBCards = cards
 	return ld, nil
 }
 

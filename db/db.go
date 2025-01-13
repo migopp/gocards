@@ -82,3 +82,9 @@ func (db *DB) FetchDecksForUser(u User) ([]Deck, error) {
 	r := db.dbi.db().Where("user_id = ?", u.ID).Find(&decks)
 	return decks, r.Error
 }
+
+func (db *DB) FetchCardsForDeck(d Deck) ([]Card, error) {
+	var cards []Card
+	r := db.dbi.db().Where("deck_id = ?", d.ID).Find(&cards)
+	return cards, r.Error
+}

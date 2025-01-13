@@ -1,16 +1,21 @@
 package server
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/migopp/gocards/db"
+)
 
 type Server struct {
-	address string
-	engine  *gin.Engine
+	address    string
+	engine     *gin.Engine
+	deckStates map[uint]deckState
 }
 
 func New(a string) Server {
 	return Server{
-		address: a,
-		engine:  gin.Default(),
+		address:    a,
+		engine:     gin.Default(),
+		deckStates: make(map[uint]deckState),
 	}
 }
 
@@ -31,8 +36,14 @@ func (s *Server) Config() {
 	s.engine.GET("/cards", getCards)
 	s.engine.GET("/decks", getDecks)
 	s.engine.POST("/decks", postDecks)
+	s.engine.POST("/decks/select", postDecksSelect)
 }
 
 func (s *Server) Up() error {
 	return s.engine.Run(s.address)
+}
+
+func (s *Server) deckStateForUser(u db.User) (deckState, bool) {
+	ds, ok := s.deckStates[u.ID]
+	return ds, ok
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -12,7 +13,28 @@ import (
 )
 
 func getIndex(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.tmpl.html", gin.H{})
+	// Get session user for decks
+	u, err := getSessionUser(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Failed to get session user",
+		})
+		return
+	}
+
+	// Fetch decks
+	decks, err := db.GCDB.FetchDecksForUser(u)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Error": "Failed to fetch decks for session user",
+		})
+		return
+	}
+
+	// Serve home content
+	c.HTML(http.StatusOK, "index.tmpl.html", gin.H{
+		"Decks": decks,
+	})
 }
 
 func getSignup(c *gin.Context) {
@@ -100,12 +122,39 @@ func postLogin(c *gin.Context) {
 	return
 }
 
+// TODO:
 func getCards(c *gin.Context) {
-	c.HTML(http.StatusOK, "cards.tmpl.html", gin.H{})
+	// Get session user's deck state
+	u, err := getSessionUser(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Failed to get session user",
+		})
+		return
+	}
+	ds, ok := GCS.deckStateForUser(u)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Session user has no active deck state",
+		})
+		return
+	}
+
+	// Serve the cards screen
+	card, err := ds.curr()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Error": "Failed to fetch current card",
+		})
+		return
+	}
+	c.HTML(http.StatusOK, "cards.tmpl.html", gin.H{
+		"Card": card,
+	})
 }
 
+// TODO:
 func getDecks(c *gin.Context) {
-	// TODO:
 	c.JSON(http.StatusOK, gin.H{})
 }
 
@@ -130,7 +179,7 @@ func postDecks(c *gin.Context) {
 	defer file.Close()
 
 	// Parse file into `LDeck`
-	ld, err := db.YMLToDeck(file, header)
+	ld, err := db.YMLToLDeck(file, header)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Error": "Failed to parse deck from `.yml`",
@@ -167,8 +216,64 @@ func postDecks(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Printf("Decks = %v\n", decks)
 	c.HTML(http.StatusOK, "decks.comp.html", gin.H{
 		"Decks": decks,
 	})
 }
+
+func postDecksSelect(c *gin.Context) {
+	// Figure which deck was selected
+	if err := c.Request.ParseForm(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Unable to parse page forms",
+		})
+		return
+	}
+	fmt.Println("Forms:", c.Request.Form)
+	sdn := c.Request.FormValue("decks")
+	if sdn == "" { // NOTE: Sus
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Bad deck selected",
+		})
+		return
+	}
+	sdi, err := strconv.Atoi(sdn)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Error": "Failed to convert selected deck number string to int",
+		})
+		return
+	}
+	u, err := getSessionUser(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Failed to get session user",
+		})
+		return
+	}
+	decks, err := db.GCDB.FetchDecksForUser(u)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Error": "Failed to fetch decks for session user",
+		})
+		return
+	}
+
+	// Create a `deckState` for the selected deck and attach to server
+	ld, err := db.DeckToLDeck(decks[sdi])
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Error": "Failed to fetch decks for session user",
+		})
+		return
+	}
+	ds := deckState{LoadedDeck: ld}
+	ds.attach(u)
+
+	// Redirect to `/cards`
+	http.Redirect(c.Writer, c.Request, "/cards", http.StatusFound)
+	return
+}
+
+// NOTE: Also cannot forget to have some detach mechanism
+// to remove the `deckState` from `deckStates` in the server struct

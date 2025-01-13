@@ -23,16 +23,16 @@
     <div id="deck-select-upload">
       <div id="deck-select">
         <div id="deck-select-form">
-          <form
-            hx-post="/decks/select"
-            hx-trigger="change"
-            hx-target="#start"
-            hx-swap="innerHTML"
-          >
-            <select name="decks" id="decks" required>
+          <form action="/decks/select" method="post">
+            <select
+              name="decks"
+              id="decks"
+              required
+              onchange="this.form.submit()"
+            >
               <option value="" disabled selected>エンプティー？</option>
               {{range $index, $item := .Decks}}
-              <option value="{{$index}}">{{$item.Name}}</option>
+              <option value="{{$index}}">{{$index}} {{$item.Name}}</option>
               {{end}}
             </select>
           </form>

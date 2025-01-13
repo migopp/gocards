@@ -127,7 +127,7 @@ func simulateMultipartFile(fp string) (multipart.File, *multipart.FileHeader, er
 	return mpf, mpfh, nil
 }
 
-func TestTenYMLToDeck(t *testing.T) {
+func TestTenYMLToLDeck(t *testing.T) {
 	// Open a sample deck as a `multipart.File` : "../test/decks/ten.yml"
 	file, header, err := simulateMultipartFile("../test/decks/ten.yml")
 	if err != nil {
@@ -136,7 +136,7 @@ func TestTenYMLToDeck(t *testing.T) {
 	defer file.Close()
 
 	// Convert to `LDeck`
-	ld, err := db.YMLToDeck(file, header)
+	ld, err := db.YMLToLDeck(file, header)
 	if err != nil {
 		t.Errorf("Failed to convert `../test/decks/ten.yml` to `LDeck`: %v", err)
 	}
@@ -150,7 +150,7 @@ func TestTenYMLToDeck(t *testing.T) {
 
 	// The owner of this deck will be a new user
 	su := db.User{
-		Email:    "TestTenYMLToDeck@test.mailprov.com",
+		Email:    "TestTenYMLToLDeck@test.mailprov.com",
 		Password: "someencryptedpassword",
 	}
 	if err := TDB.CreateUser(&su); err != nil {
