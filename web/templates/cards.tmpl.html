@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+    <title>ゴーカード</title>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <link rel="stylesheet" type="text/css" href="/static/cards.css" />
+  </head>
+  <script>
+    // For translation: romaji -> kana
+    //
+    // No katakana for now...
+    const hiragana = new Map([
+      // Main list
+      ["a", "あ"],
+      ["i", "い"],
+      ["u", "う"],
+      ["e", "え"],
+      ["o", "お"],
+      ["ka", "か"],
+      ["ki", "き"],
+      ["ku", "く"],
+      ["ke", "け"],
+      ["ko", "こ"],
+      ["sa", "さ"],
+      ["shi", "し"],
+      ["su", "す"],
+      ["se", "せ"],
+      ["so", "そ"],
+      ["ta", "た"],
+      ["chi", "ち"],
+      ["tsu", "つ"],
+      ["te", "て"],
+      ["to", "と"],
+      ["na", "な"],
+      ["ni", "に"],
+      ["nu", "ぬ"],
+      ["ne", "ね"],
+      ["no", "の"],
+      ["ha", "は"],
+      ["hi", "ひ"],
+      ["fu", "ふ"],
+      ["he", "へ"],
+      ["ho", "ほ"],
+      ["ma", "ま"],
+      ["mi", "み"],
+      ["mu", "む"],
+      ["me", "め"],
+      ["mo", "も"],
+      ["ra", "ら"],
+      ["ri", "り"],
+      ["ru", "る"],
+      ["re", "れ"],
+      ["ro", "ろ"],
+      ["ya", "や"],
+      ["yu", "ゆ"],
+      ["yo", "よ"],
+      ["wa", "わ"],
+      ["wo", "を"],
+      ["nn", "ん"],
+
+      // Dakuten
+      ["ga", "が"],
+      ["gi", "ぎ"],
+      ["gu", "ぐ"],
+      ["ge", "げ"],
+      ["go", "ご"],
+      ["za", "ざ"],
+      ["ji", "じ"],
+      ["zu", "ず"],
+      ["ze", "ぜ"],
+      ["zo", "ぞ"],
+      ["da", "だ"],
+      ["dji", "ぢ"],
+      ["dzu", "づ"],
+      ["de", "で"],
+      ["do", "ど"],
+      ["ba", "ば"],
+      ["bi", "び"],
+      ["bu", "ぶ"],
+      ["be", "べ"],
+      ["bo", "ぼ"],
+      ["pa", "ぱ"],
+      ["pi", "ぴ"],
+      ["pu", "ぷ"],
+      ["pe", "ぺ"],
+      ["po", "ぽ"],
+
+      // Combo
+      ["kya", "きゃ"],
+      ["kyu", "きゅ"],
+      ["kyo", "きょ"],
+      ["gya", "ぎゃ"],
+      ["gyu", "ぎゅ"],
+      ["gyo", "ぎょ"],
+      ["sha", "しゃ"],
+      ["shu", "しゅ"],
+      ["sho", "しょ"],
+      ["ja", "じゃ"],
+      ["ju", "じゅ"],
+      ["jo", "じょ"],
+      ["cha", "ちゃ"],
+      ["chu", "ちゅ"],
+      ["cho", "ちょ"],
+      ["dja", "ぢゃ"],
+      ["dju", "ぢゅ"],
+      ["djo", "ぢょ"],
+      ["nya", "にゃ"],
+      ["nyu", "にゅ"],
+      ["nyo", "にょ"],
+      ["hya", "ひゃ"],
+      ["hyu", "ひゅ"],
+      ["hyo", "ひょ"],
+      ["bya", "びゃ"],
+      ["byu", "びゅ"],
+      ["byo", "びょ"],
+      ["pya", "ぴゃ"],
+      ["pyu", "ぴゅ"],
+      ["pyo", "ぴょ"],
+      ["mya", "みゃ"],
+      ["myu", "みゅ"],
+      ["myo", "みょ"],
+      ["rya", "りゃ"],
+      ["ryu", "りゅ"],
+      ["ryo", "りょ"],
+
+      // Misc
+      ["-", "ー"],
+      [",", "、"],
+      [".", "。"],
+    ]);
+
+    // Save a global translation buffer
+    //
+    // This is really bad in terms of concurrency, but I think
+    // since JS uses an event loop with a single thread, you
+    // can get away with this kind of thing...
+    //
+    // Maybe a bug will prove me wrong later or something lol
+    let buffer = "";
+
+    // Replaces the text input with appropriate kana
+    //
+    // Since kana can span anywhere from 1-4 characters (sokukon),
+    // we check these sizes from largest-to-smallest order. If it
+    // matches anything in the dict, we replace it.
+    function handleKey(event) {
+      // Check for deletion
+      //
+      // We can delete from the actual form, but our content
+      // will be forever bugged if we don't fix this now.
+      if (event.inputType === "deleteContentBackward") {
+        if (buffer.length != 0) buffer = buffer.slice(0, -1);
+        return; // break!
+      }
+
+      // Save the last character
+      //
+      // Then we look for kana with our updated input;
+      // noting that we can also have a repeated consonant
+      // (sokukon) which will make the length of that "slice"
+      // be succ(n), where n is the length without repeat.
+      let input = event.target.value;
+      buffer += input.slice(-1);
+      if (hiragana.has(buffer)) {
+        event.target.value =
+          input.slice(0, input.length - buffer.length) + hiragana.get(buffer);
+        buffer = ""; // reset
+      } else {
+        // Check for sokukon
+        // e.g., たべちゃtta -> たべちゃった
+        //
+        // We need:
+        // 	- a match for kana at the end, AND
+        // 	- the character right _before_ the match needs to be congruent
+        // 	  to the first character of the match
+        let slice = buffer.slice(1); // shorthand
+        if (hiragana.has(slice) && buffer[0] == slice[0]) {
+          // Add xtsu
+          event.target.value =
+            input.slice(0, input.length - buffer.length) +
+            "っ" +
+            hiragana.get(slice);
+          buffer = ""; // still counts as a find; reset
+        }
+      }
+    }
+  </script>
+  <body>
+    <div id="card-container">
+      <div id="word-container" class="norm">
+        <p>{{.Card.Front}}</p>
+      </div>
+      <div id="input-container">
+        <form
+          hx-post="/cards"
+          hx-target="#card-container"
+          hx-swap="innerHTML"
+          hx-trigger="submit"
+        >
+          <input
+            type="text"
+            name="ans"
+            id="ans"
+            autocomplete="off"
+            oninput="handleKey(event)"
+          />
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

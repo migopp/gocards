@@ -1,11 +1,10 @@
 # syntax=docker/dockerfile:1
 
-# Generated from `docker init`
-# Though, I had to modify some stuff.
-#
-# I'm leaving this reference for myself in case I did something bad
-# and need to fix it later...
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Dockerfile reference guide at
 # https://docs.docker.com/go/dockerfile-reference/
+
+# Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
 ################################################################################
 # Create a stage for building the application.
@@ -30,13 +29,9 @@ ARG TARGETARCH
 # Leverage a cache mount to /go/pkg/mod/ to speed up subsequent builds.
 # Leverage a bind mount to the current directory to avoid having to copy the
 # source code into the container.
-RUN mkdir -p /app
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,target=. \
-    CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /app/server ./cmd/gocards/main.go
-
-# Copy source code.
-COPY . /app
+    CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/server ./cmd/gocards/main.go
 
 ################################################################################
 # Create a new stage for running the application that contains the minimal
@@ -47,7 +42,7 @@ COPY . /app
 # The example below uses the alpine image as the foundation for running the app.
 # By specifying the "latest" tag, it will also use whatever happens to be the
 # most recent version of that image when you build your Dockerfile. If
-# reproducability is important, consider using a versioned tag
+# reproducibility is important, consider using a versioned tag
 # (e.g., alpine:3.17.2) or SHA (e.g., alpine@sha256:c41ab5c992deb4fe7e5da09f67a8804a46bd0592bfdf0b1847dde0e0889d2bff).
 FROM alpine:latest AS final
 
@@ -74,11 +69,10 @@ RUN adduser \
 USER appuser
 
 # Copy the executable from the "build" stage.
-COPY --from=build /app /app
-WORKDIR /app
+COPY --from=build /bin/server /bin/
 
 # Expose the port that the application listens on.
-EXPOSE 8080
+EXPOSE 1337
 
 # What the container should run when it is started.
-ENTRYPOINT [ "/app/server" ]
+ENTRYPOINT [ "/bin/server" ]

@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap");
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+#card-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#word-container {
+  width: 100%;
+  padding: 2rem 0;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 5rem;
+  font-family: "Noto Sans JP", sans-serif;
+  color: white;
+}
+
+#input-container {
+  width: 95%;
+}
+
+#input-container form {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#input-container input {
+  width: 100%;
+  font-size: 2.5rem;
+  text-align: center;
+  caret-color: transparent;
+}
+
+.norm {
+  background-color: black;
+}
+
+.wrong {
+  background-color: red;
+}

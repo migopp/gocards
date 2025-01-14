@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>ゴーカード</title>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <link rel="stylesheet" type="text/css" href="/static/login.css" />
+  </head>
+  <body>
+    <form hx-post="/login" hx-trigger="submit" id="login-form">
+      <input type="text" name="email" id="email" autocomplete="off" />
+      <input type="text" name="password" id="password" autocomplete="off" />
+      <button type="submit">Login</button>
+    </form>
+  </body>
+</html>
