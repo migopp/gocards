@@ -140,8 +140,8 @@ func getCards(c *gin.Context) {
 	}
 
 	// Serve the cards screen
-	card, err := ds.curr()
-	if err != nil {
+	card, ok := ds.curr()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Error": "Failed to fetch current card",
 		})
@@ -152,7 +152,6 @@ func getCards(c *gin.Context) {
 	})
 }
 
-// TODO:
 func postCards(c *gin.Context) {
 	// Get session user's deck state
 	id, err := getSessionUserID(c)
@@ -179,9 +178,8 @@ func postCards(c *gin.Context) {
 		return
 	}
 	in := c.Request.FormValue("ans")
-	fmt.Println("ans: ", in)
-	card, err := ds.curr()
-	if err != nil {
+	card, ok := ds.curr()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Error": "Failed to fetch current card",
 		})
@@ -201,8 +199,8 @@ func postCards(c *gin.Context) {
 			return
 		} else {
 			// Display next card
-			card, err := ds.curr()
-			if err != nil {
+			card, ok := ds.curr()
+			if !ok {
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"Error": "Failed to fetch current card",
 				})
@@ -336,7 +334,7 @@ func postDecksSelect(c *gin.Context) {
 		})
 		return
 	}
-	ds := deckState{LoadedDeck: ld}
+	ds := &deckState{LoadedDeck: ld}
 	ds.attach(u)
 
 	// Redirect to `/cards`

@@ -8,14 +8,14 @@ import (
 type Server struct {
 	address    string
 	engine     *gin.Engine
-	deckStates map[uint]deckState
+	deckStates map[uint]*deckState
 }
 
 func New(a string) Server {
 	return Server{
 		address:    a,
 		engine:     gin.Default(),
-		deckStates: make(map[uint]deckState),
+		deckStates: make(map[uint]*deckState),
 	}
 }
 
@@ -44,12 +44,12 @@ func (s *Server) Up() error {
 	return s.engine.Run(s.address)
 }
 
-func (s *Server) deckStateForUserID(id uint) (deckState, bool) {
+func (s *Server) deckStateForUserID(id uint) (*deckState, bool) {
 	ds, ok := s.deckStates[id]
 	return ds, ok
 }
 
-func (s *Server) deckStateForUser(u db.User) (deckState, bool) {
+func (s *Server) deckStateForUser(u db.User) (*deckState, bool) {
 	ds, ok := s.deckStates[u.ID]
 	return ds, ok
 }

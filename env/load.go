@@ -30,13 +30,13 @@ func Load() V {
 
 	// Translate and -> instance
 	return V{
-		ServerAddress: fmt.Sprintf("%s:%s", os.Getenv("S_IP"), os.Getenv("S_PORT")),
+		ServerAddress: fmt.Sprintf("%s:%s", os.Getenv("S_HOST"), os.Getenv("S_PORT")),
 		DBConn: fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 			os.Getenv("DB_HOST"),
 			os.Getenv("DB_USER"),
 			os.Getenv("DB_PASSWORD"),
-			os.Getenv("DB_DBNAME"),
+			os.Getenv("DB_NAME"),
 			os.Getenv("DB_PORT"),
 		),
 		JWTSecret: os.Getenv("JWT_SECRET"),
